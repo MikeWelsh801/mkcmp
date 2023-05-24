@@ -1,6 +1,6 @@
 namespace Mkcmp.CodeAnalysis
 {
-    abstract class ExpressionSyntax : SyntaxNode
+    public abstract class ExpressionSyntax : SyntaxNode
     {
     }
 }

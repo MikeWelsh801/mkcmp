@@ -1,7 +1,6 @@
 namespace Mkcmp.CodeAnalysis
 {
-
-    class Evaluator
+    public sealed class Evaluator
     {
         private readonly ExpressionSyntax _root;
 
@@ -20,7 +19,7 @@ namespace Mkcmp.CodeAnalysis
             // BinaryExpression
             // NumberExpression
 
-            if (node is NumberExpressionSyntax n)
+            if (node is LiteralExpressionSyntax n)
                 return (int?)n.NumberToken.Value;
 
             if (node is BinaryExpressionSytax b)

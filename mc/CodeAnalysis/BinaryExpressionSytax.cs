@@ -1,6 +1,6 @@
 namespace Mkcmp.CodeAnalysis
 {
-    sealed class BinaryExpressionSytax : ExpressionSyntax
+    public sealed class BinaryExpressionSytax : ExpressionSyntax
     {
         public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
         public ExpressionSyntax Left { get; }
