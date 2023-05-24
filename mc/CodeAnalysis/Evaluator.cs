@@ -20,7 +20,7 @@ namespace Mkcmp.CodeAnalysis
             // NumberExpression
 
             if (node is LiteralExpressionSyntax n)
-                return (int?)n.NumberToken.Value;
+                return (int?)n.LiteralToken.Value;
 
             if (node is BinaryExpressionSytax b)
             {

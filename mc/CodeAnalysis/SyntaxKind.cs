@@ -15,7 +15,7 @@ namespace Mkcmp.CodeAnalysis
         CloseParenToken,
 
         // Expressions
-        NumberExpression,
+        LiteralExpression,
         BinaryExpression,
         ParenthesizedExpression
     }
