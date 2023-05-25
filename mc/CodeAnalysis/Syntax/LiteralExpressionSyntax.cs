@@ -1,4 +1,4 @@
-namespace Mkcmp.CodeAnalysis
+namespace Mkcmp.CodeAnalysis.Syntax
 {
     public sealed class LiteralExpressionSyntax : ExpressionSyntax
     {

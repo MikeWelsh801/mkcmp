@@ -1,4 +1,4 @@
-namespace Mkcmp.CodeAnalysis
+namespace Mkcmp.CodeAnalysis.Syntax
 {
 
     internal sealed class Parser

@@ -1,3 +1,5 @@
+using Mkcmp.CodeAnalysis.Syntax;
+
 namespace Mkcmp.CodeAnalysis
 {
     public sealed class Evaluator
@@ -50,7 +52,6 @@ namespace Mkcmp.CodeAnalysis
 
             if (node is ParenthesizedExpressionSyntax p)
                 return EvaluateExpression(p.Expression);
-
 
             throw new Exception($"Unexpected node {node.Kind}");
         }
