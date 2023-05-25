@@ -1,13 +1,13 @@
 namespace Mkcmp.CodeAnalysis.Syntax
 {
-    public sealed class BinaryExpressionSytax : ExpressionSyntax
+    public sealed class BinaryExpressionSyntax : ExpressionSyntax
     {
         public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
         public ExpressionSyntax Left { get; }
         public SyntaxToken OperatorToken { get; }
         public ExpressionSyntax Right { get; }
 
-        public BinaryExpressionSytax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
+        public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
         {
             Left = left;
             OperatorToken = operatorToken;

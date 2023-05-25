@@ -73,7 +73,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
             {
                 var operatorToken = NextToken();
                 var operand = ParseExpression(unaryOperatorPrecedence);
-                left = new UnaryExpressionSytax(operatorToken, operand);
+                left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
             {
@@ -88,7 +88,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
 
                 var operatorToken = NextToken();
                 var right = ParseExpression(precedence);
-                left = new BinaryExpressionSytax(left, operatorToken, right);
+                left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 
             return left;
