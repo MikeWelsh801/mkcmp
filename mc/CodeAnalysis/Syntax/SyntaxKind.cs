@@ -13,6 +13,11 @@ namespace Mkcmp.CodeAnalysis.Syntax
         SlashToken,
         OpenParenToken,
         CloseParenToken,
+        IdentifierToken,
+
+        // Keywords
+        FalseKeyword,
+        TrueKeyword,
 
         // Expressions
         LiteralExpression,
