@@ -2,22 +2,22 @@ namespace Mkcmp.CodeAnalysis
 {
     public sealed class ParenthesizedExpressionSyntax : ExpressionSyntax
     {
-        public ParenthesizedExpressionSyntax(SyntaxToken openParenthesisToken, ExpressionSyntax espression, SyntaxToken closedParenthesisToken)
+        public ParenthesizedExpressionSyntax(SyntaxToken openParenthesisToken, ExpressionSyntax expression, SyntaxToken closedParenthesisToken)
         {
             OpenParenthesisToken = openParenthesisToken;
-            Espression = espression;
+            Expression = expression;
             ClosedParenthesisToken = closedParenthesisToken;
         }
 
         public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
         public SyntaxToken OpenParenthesisToken { get; }
-        public ExpressionSyntax Espression { get; }
+        public ExpressionSyntax Expression { get; }
         public SyntaxToken ClosedParenthesisToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
             yield return OpenParenthesisToken;
-            yield return Espression;
+            yield return Expression;
             yield return ClosedParenthesisToken;
         }
     }

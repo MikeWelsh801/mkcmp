@@ -11,21 +11,30 @@ namespace Mkcmp.CodeAnalysis
 
         public int? Evaluate()
         {
-            return EvaluateEpression(_root);
+            return EvaluateExpression(_root);
         }
 
-        private int? EvaluateEpression(ExpressionSyntax node)
+        private int? EvaluateExpression(ExpressionSyntax node)
         {
-            // BinaryExpression
-            // NumberExpression
-
             if (node is LiteralExpressionSyntax n)
                 return (int?)n.LiteralToken.Value;
 
+            if (node is UnaryExpressionSytax u)
+            {
+                var operand = EvaluateExpression(u.Operand);
+
+                if (u.OperatorToken.Kind == SyntaxKind.PlusToken)
+                    return operand;
+                else if (u.OperatorToken.Kind == SyntaxKind.MinusToken)
+                    return -operand;
+                else
+                    throw new Exception($"Unexpected unary operator {u.OperatorToken.Kind}");
+            }
+
             if (node is BinaryExpressionSytax b)
             {
-                var left = EvaluateEpression(b.Left);
-                var right = EvaluateEpression(b.Right);
+                var left = EvaluateExpression(b.Left);
+                var right = EvaluateExpression(b.Right);
 
                 if (b.OperatorToken.Kind == SyntaxKind.PlusToken)
                     return left + right;
@@ -40,7 +49,7 @@ namespace Mkcmp.CodeAnalysis
             }
 
             if (node is ParenthesizedExpressionSyntax p)
-                return EvaluateEpression(p.Espression);
+                return EvaluateExpression(p.Expression);
 
 
             throw new Exception($"Unexpected node {node.Kind}");

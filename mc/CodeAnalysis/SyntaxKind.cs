@@ -16,8 +16,9 @@ namespace Mkcmp.CodeAnalysis
 
         // Expressions
         LiteralExpression,
+        UnaryExpression,
         BinaryExpression,
-        ParenthesizedExpression
+        ParenthesizedExpression,
     }
 }
 
