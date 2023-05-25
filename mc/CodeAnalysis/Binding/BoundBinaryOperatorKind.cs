@@ -5,7 +5,9 @@ namespace Mkcmp.CodeAnalysis.Binding
         Addition,
         Subtraction,
         Multiplication,
-        Division
+        Division,
+        LogicalOr,
+        LogicalAnd
     }
 }
 
