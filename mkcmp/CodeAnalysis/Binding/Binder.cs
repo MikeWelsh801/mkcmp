@@ -4,9 +4,9 @@ namespace Mkcmp.CodeAnalysis.Binding
 {
     internal sealed class Binder
     {
-        private readonly List<string> _diagostics = new();
+        private readonly DiagnosticBag _diagostics = new();
 
-        public IEnumerable<string> Diagnostics => _diagostics;
+        public DiagnosticBag Diagnostics => _diagostics;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -38,7 +38,7 @@ namespace Mkcmp.CodeAnalysis.Binding
 
             if (boundOperator == null)
             {
-                _diagostics.Add($"Unary operator token '{syntax.OperatorToken.Text}' is not defined for type {boundOperand.Type}.");
+                _diagostics.ReportUndefinedUnaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundOperand.Type);
                 return boundOperand;
             }
 
@@ -54,7 +54,7 @@ namespace Mkcmp.CodeAnalysis.Binding
 
             if (boundOperator == null)
             {
-                _diagostics.Add($"Binary operator token '{syntax.OperatorToken.Text}' is not defined for types {boundLeft.Type} and {boundRight.Type}.");
+                _diagostics.ReportUndefinedBinaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundLeft.Type, boundRight.Type);
                 return boundLeft;
             }
 

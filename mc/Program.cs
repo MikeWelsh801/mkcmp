@@ -1,5 +1,4 @@
 ﻿using Mkcmp.CodeAnalysis;
-using Mkcmp.CodeAnalysis.Binding;
 using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp
@@ -30,10 +29,10 @@ namespace Mkcmp
                 }
 
                 var syntaxTree = SyntaxTree.Parse(line);
-                var binder = new Binder();
-                var boundExpression = binder.BindExpression(syntaxTree.Root);
+                var compilation = new Compilation(syntaxTree);
+                var result = compilation.Evaluate();
 
-                IReadOnlyList<string> diagnostics = syntaxTree.Diagnostics.Concat(binder.Diagnostics).ToArray();
+                IReadOnlyList<Diagnostic> diagnostics = result.Diagnostics;
 
                 if (showTree)
                 {
@@ -44,9 +43,7 @@ namespace Mkcmp
 
                 if (!diagnostics.Any())
                 {
-                    var e = new Evaluator(boundExpression);
-                    var result = e.Evaluate();
-                    Console.WriteLine(result);
+                    Console.WriteLine(result.Value);
                 }
                 else
                 {
