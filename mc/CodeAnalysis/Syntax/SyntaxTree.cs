@@ -1,6 +1,6 @@
-namespace Mkcmp.CodeAnalysis
+namespace Mkcmp.CodeAnalysis.Syntax
 {
-    sealed class SyntaxTree
+    public sealed class SyntaxTree
     {
         public SyntaxTree(IEnumerable<string> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
         {

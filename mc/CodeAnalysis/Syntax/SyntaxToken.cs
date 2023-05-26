@@ -1,6 +1,6 @@
-namespace Mkcmp.CodeAnalysis
+namespace Mkcmp.CodeAnalysis.Syntax
 {
-    class SyntaxToken : SyntaxNode
+    public sealed class SyntaxToken : SyntaxNode
     {
         public override SyntaxKind Kind { get; }
         public int Position { get; }

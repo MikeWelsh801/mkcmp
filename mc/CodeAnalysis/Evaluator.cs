@@ -1,48 +1,57 @@
+using Mkcmp.CodeAnalysis.Binding;
+
 namespace Mkcmp.CodeAnalysis
 {
-
-    class Evaluator
+    internal sealed class Evaluator
     {
-        private readonly ExpressionSyntax _root;
+        private readonly BoundExpression _root;
 
-        public Evaluator(ExpressionSyntax root)
+        public Evaluator(BoundExpression root)
         {
             _root = root;
         }
 
-        public int? Evaluate()
+        public object Evaluate()
         {
-            return EvaluateEpression(_root);
+            return EvaluateExpression(_root);
         }
 
-        private int? EvaluateEpression(ExpressionSyntax node)
+        private object EvaluateExpression(BoundExpression node)
         {
-            // BinaryExpression
-            // NumberExpression
+            if (node is BoundLiteralExpression n)
+                return n.Value;
 
-            if (node is NumberExpressionSyntax n)
-                return (int?)n.NumberToken.Value;
-
-            if (node is BinaryExpressionSytax b)
+            if (node is BoundUnaryExpression u)
             {
-                var left = EvaluateEpression(b.Left);
-                var right = EvaluateEpression(b.Right);
+                var operand = EvaluateExpression(u.Operand);
 
-                if (b.OperatorToken.Kind == SyntaxKind.PlusToken)
-                    return left + right;
-                else if (b.OperatorToken.Kind == SyntaxKind.MinusToken)
-                    return left - right;
-                else if (b.OperatorToken.Kind == SyntaxKind.StarToken)
-                    return left * right;
-                else if (b.OperatorToken.Kind == SyntaxKind.SlashToken)
-                    return left / right;
-                else
-                    throw new Exception($"Unexpected binary operator {b.OperatorToken.Kind}");
+                return u.Op.Kind switch
+                {
+                    BoundUnaryOperatorKind.Identity => (int)operand,
+                    BoundUnaryOperatorKind.Negation => -(int)operand,
+                    BoundUnaryOperatorKind.LogicalNegation => !(bool)operand,
+                    _ => throw new Exception($"Unexpected unary operator {u.Op}")
+                };
             }
 
-            if (node is ParenthesizedExpressionSyntax p)
-                return EvaluateEpression(p.Espression);
+            if (node is BoundBinaryExpression b)
+            {
+                var left = EvaluateExpression(b.Left);
+                var right = EvaluateExpression(b.Right);
 
+                return b.Op.Kind switch
+                {
+                    BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+                    BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
+                    BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
+                    BoundBinaryOperatorKind.Division => (int)left / (int)right,
+                    BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
+                    BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
+                    BoundBinaryOperatorKind.Equals => Equals(left, right),
+                    BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
+                    _ => throw new Exception($"Unexpected binary operator {b.Op}")
+                };
+            }
 
             throw new Exception($"Unexpected node {node.Kind}");
         }
