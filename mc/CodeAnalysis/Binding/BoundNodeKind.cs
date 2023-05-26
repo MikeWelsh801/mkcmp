@@ -2,8 +2,8 @@ namespace Mkcmp.CodeAnalysis.Binding
 {
     internal enum BoundNodeKind
     {
-        UnaryExpression,
         LiteralExpression,
+        UnaryExpression,
         BinaryExpression
     }
 }
