@@ -5,7 +5,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
     {
         private readonly SyntaxToken[] _tokens;
         private int _position;
-        private List<string> _diagnostics = new();
+        private DiagnosticBag _diagnostics = new();
 
         public Parser(string text)
         {
@@ -29,7 +29,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
             _diagnostics.AddRange(lexer.Diagnostics);
         }
 
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticBag Diagnostics => _diagnostics;
 
         private SyntaxToken Peek(int offset)
         {
@@ -54,7 +54,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
             if (Current.Kind == kind)
                 return NextToken();
 
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
+            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
@@ -65,14 +65,33 @@ namespace Mkcmp.CodeAnalysis.Syntax
             return new SyntaxTree(Diagnostics, expression, endOfFileToken);
         }
 
-        private ExpressionSyntax ParseExpression(int parentPrececence = 0)
+        private ExpressionSyntax ParseExpression()
+        {
+            return ParseAssignmentExpression();
+        }
+
+        private ExpressionSyntax ParseAssignmentExpression()
+        {
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken &&
+                Peek(1).Kind == SyntaxKind.EqualsToken)
+            {
+                var identifierToken = NextToken();
+                var operatorToken = NextToken();
+                var right = ParseAssignmentExpression();
+                return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
+            }
+
+            return ParseBinaryExpression();
+        }
+
+        private ExpressionSyntax ParseBinaryExpression(int parentPrececence = 0)
         {
             ExpressionSyntax left;
             var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrececence)
             {
                 var operatorToken = NextToken();
-                var operand = ParseExpression(unaryOperatorPrecedence);
+                var operand = ParseBinaryExpression(unaryOperatorPrecedence);
                 left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
@@ -87,7 +106,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
                     break;
 
                 var operatorToken = NextToken();
-                var right = ParseExpression(precedence);
+                var right = ParseBinaryExpression(precedence);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 
@@ -100,26 +119,32 @@ namespace Mkcmp.CodeAnalysis.Syntax
             switch (Current.Kind)
             {
                 case SyntaxKind.OpenParenToken:
-                {
-                    var left = NextToken();
-                    var expression = ParseExpression();
-                    var right = MatchToken(SyntaxKind.CloseParenToken);
-                    return new ParenthesizedExpressionSyntax(left, expression, right);
-                }
+                    {
+                        var left = NextToken();
+                        var expression = ParseExpression();
+                        var right = MatchToken(SyntaxKind.CloseParenToken);
+                        return new ParenthesizedExpressionSyntax(left, expression, right);
+                    }
 
                 case SyntaxKind.FalseKeyword:
                 case SyntaxKind.TrueKeyword:
-                {
-                    var keywordToken = NextToken();
-                    var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
-                    return new LiteralExpressionSyntax(keywordToken, value);
-                }
+                    {
+                        var keywordToken = NextToken();
+                        var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
+                        return new LiteralExpressionSyntax(keywordToken, value);
+                    }
+
+                case SyntaxKind.IdentifierToken:
+                    {
+                        var identifierToken = NextToken();
+                        return new NameExpressionSyntax(identifierToken);
+                    }
 
                 default:
-                {
-                    var numberToken = MatchToken(SyntaxKind.NumberToken);
-                    return new LiteralExpressionSyntax(numberToken);
-                }
+                    {
+                        var numberToken = MatchToken(SyntaxKind.NumberToken);
+                        return new LiteralExpressionSyntax(numberToken);
+                    }
             }
 
         }
