@@ -12,6 +12,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
         StarToken,
         SlashToken,
         BangToken,
+        EqualsToken,
         AmpersandAmpersandToken,
         PipePipeToken,
         BangEqualsToken,
@@ -26,9 +27,11 @@ namespace Mkcmp.CodeAnalysis.Syntax
 
         // Expressions
         LiteralExpression,
+        NameExpression,
         UnaryExpression,
         BinaryExpression,
         ParenthesizedExpression,
+        AssignmentExpression,
     }
 }
 
