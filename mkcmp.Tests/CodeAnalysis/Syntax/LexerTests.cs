@@ -2,7 +2,7 @@ using Mkcmp.CodeAnalysis.Syntax;
 
 namespace mkcmp.Tests.CodeAnalysis.Syntax;
 
-public class LexerTest
+public class LexerTests
 {
     [Theory]
     [MemberData(nameof(GetTokensData))]
