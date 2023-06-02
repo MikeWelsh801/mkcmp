@@ -28,7 +28,7 @@ public class EvaluationTests
     [InlineData("!false", true)]
     [InlineData("(a = 10) * a", 100)]
 
-    public void SyntaxFact_GetText_RoundTrips(string text, object expectedValue)
+    public void Test_Expression_Evaluation_Result(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);
         var compilation = new Compilation(syntaxTree);
