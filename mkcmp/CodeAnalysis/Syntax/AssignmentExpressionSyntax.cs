@@ -1,19 +1,20 @@
-namespace Mkcmp.CodeAnalysis.Syntax
-{
-    public sealed class AssignmentExpressionSyntax : ExpressionSyntax
-    {
-        public AssignmentExpressionSyntax(SyntaxToken identifierToken, SyntaxToken equalsToken, ExpressionSyntax expression)
-        {
-            IdentifierToken = identifierToken;
-            EqualsToken = equalsToken;
-            Expression = expression;
-        }
+namespace Mkcmp.CodeAnalysis.Syntax;
 
-        public override SyntaxKind Kind => SyntaxKind.AssignmentExpression;
-        public SyntaxToken IdentifierToken { get; }
-        public SyntaxToken EqualsToken { get; }
-        public ExpressionSyntax Expression { get; }
+public sealed class AssignmentExpressionSyntax : ExpressionSyntax
+{
+    public AssignmentExpressionSyntax(SyntaxToken identifierToken,
+                                      SyntaxToken equalsToken,
+                                      ExpressionSyntax expression)
+    {
+        IdentifierToken = identifierToken;
+        EqualsToken = equalsToken;
+        Expression = expression;
     }
+
+    public override SyntaxKind Kind => SyntaxKind.AssignmentExpression;
+    public SyntaxToken IdentifierToken { get; }
+    public SyntaxToken EqualsToken { get; }
+    public ExpressionSyntax Expression { get; }
 }
 
 
