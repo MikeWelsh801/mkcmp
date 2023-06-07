@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Mkcmp.CodeAnalysis.Text;
 
 namespace Mkcmp.CodeAnalysis.Syntax
 {
@@ -6,10 +7,11 @@ namespace Mkcmp.CodeAnalysis.Syntax
     internal sealed class Parser
     {
         private readonly DiagnosticBag _diagnostics = new();
+        private readonly SourceText _text;
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
 
-        public Parser(string text)
+        public Parser(SourceText text)
         {
             List<SyntaxToken> tokens = new();
             Lexer lexer = new(text);
@@ -27,6 +29,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
 
             } while (token.Kind != SyntaxKind.EndOfFileToken);
 
+            _text = text;
             _tokens = tokens.ToImmutableArray();
             _diagnostics.AddRange(lexer.Diagnostics);
         }
@@ -64,7 +67,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
         {
             var expression = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_diagnostics.ToImmutableArray(), expression, endOfFileToken);
+            return new SyntaxTree(_text, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()
