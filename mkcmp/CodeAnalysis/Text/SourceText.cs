@@ -22,20 +22,22 @@ public sealed class SourceText
     {
         var startPos = 0;
         var endPos = Lines.Length - 1;
-        var mid = startPos + (endPos - startPos) / 2;
-        var midLine = Lines[mid];
 
-        while (position < midLine.Start || position > midLine.End)
+        while (startPos <= endPos)
         {
-            if (position < midLine.Start)
-                endPos = midLine.Start - 1;
-            else
-                startPos = midLine.End + 1;
+            var mid = startPos + (endPos - startPos) / 2;
+            var start = Lines[mid].Start;
+            var end = Lines[mid].End;
 
-            mid = startPos + (endPos - startPos) / 2;
-            midLine = Lines[mid];
+            if (position >= start && position <= end)
+                return mid;
+
+            if (position < start)
+                endPos = mid - 1;
+            else
+                startPos = mid + 1;
         }
-        return mid;
+        return startPos - 1;
     }
 
     private static ImmutableArray<TextLine> ParseLines(SourceText sourceText, string text)
