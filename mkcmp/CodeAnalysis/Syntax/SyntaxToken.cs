@@ -1,3 +1,5 @@
+using Mkcmp.CodeAnalysis.Text;
+
 namespace Mkcmp.CodeAnalysis.Syntax
 {
     public sealed class SyntaxToken : SyntaxNode

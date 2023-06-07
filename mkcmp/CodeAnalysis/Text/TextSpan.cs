@@ -1,4 +1,4 @@
-namespace Mkcmp.CodeAnalysis;
+namespace Mkcmp.CodeAnalysis.Text;
 
 public struct TextSpan
 {
