@@ -20,7 +20,7 @@ namespace Mkcmp.CodeAnalysis.Syntax
                 token = lexer.Lex();
 
                 if (token.Kind != SyntaxKind.WhitespaceToken &&
-                   token.Kind != SyntaxKind.BadToken)
+                    token.Kind != SyntaxKind.BadToken)
                 {
                     tokens.Add(token);
                 }
