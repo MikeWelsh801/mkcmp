@@ -1,102 +1,111 @@
-﻿using Mkcmp.CodeAnalysis;
+﻿using System.Text;
+using Mkcmp.CodeAnalysis;
 using Mkcmp.CodeAnalysis.Syntax;
+using Mkcmp.CodeAnalysis.Text;
 
-namespace Mkcmp
+namespace Mkcmp;
+
+internal static class Program
 {
-    internal static class Program
+    private static void Main()
     {
-        private static void Main()
+        var showTree = false;
+        var variables = new Dictionary<VariableSymbol, object>();
+        var textBuilder = new StringBuilder();
+
+
+        while (true)
         {
-            var showTree = false;
-            var variables = new Dictionary<VariableSymbol, object>();
-
-            while (true)
-            {
+            if (textBuilder.Length == 0)
                 Console.Write("> ");
-                var line = Console.ReadLine();
-                if (string.IsNullOrEmpty(line))
-                    return;
+            else
+                Console.Write("| ");
 
-                if (line == "#showTree")
+            var input = Console.ReadLine();
+            var isBlank = string.IsNullOrEmpty(input);
+
+            if (textBuilder.Length == 0)
+            {
+                if (isBlank)
+                {
+                    break;
+                }
+                else if (input == "#showTree")
                 {
                     showTree = !showTree;
                     Console.WriteLine(showTree ? "Showing parse trees." : "Not showing parse trees.");
                     continue;
                 }
-                else if (line == "#cls")
+                else if (input == "#cls")
                 {
                     Console.Clear();
                     continue;
                 }
-
-                var syntaxTree = SyntaxTree.Parse(line);
-                var compilation = new Compilation(syntaxTree);
-                var result = compilation.Evaluate(variables);
-
-                IReadOnlyList<Diagnostic> diagnostics = result.Diagnostics;
-
-                if (showTree)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    PrettyPrint(syntaxTree.Root);
-                    Console.ResetColor();
-                }
-
-                if (!diagnostics.Any())
-                {
-                    Console.WriteLine(result.Value);
-                }
-                else
-                {
-                    foreach (var diagnostic in diagnostics)
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.WriteLine(diagnostic);
-                        Console.ResetColor();
-
-                        var prefix = line.Substring(0, diagnostic.Span.Start);
-                        var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                        var suffix = line.Substring(diagnostic.Span.End);
-
-                        Console.Write("    ");
-                        Console.Write(prefix);
-
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.Write(error);
-                        Console.ResetColor();
-
-                        Console.Write(suffix);
-                        
-                        Console.WriteLine();
-                    }
-
-                }
             }
-        }
 
-        static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
-        {
-            var marker = isLast ? "└──" : "├──";
+            textBuilder.AppendLine(input);
+            var text = textBuilder.ToString();
 
-            Console.Write(indent);
-            Console.Write(marker);
-            Console.Write(node.Kind);
+            var syntaxTree = SyntaxTree.Parse(text);
 
-            if (node is SyntaxToken t && t.Value != null)
+            if (!isBlank && syntaxTree.Diagnostics.Any())
+                continue;
+
+            var compilation = new Compilation(syntaxTree);
+            var result = compilation.Evaluate(variables);
+
+            IReadOnlyList<Diagnostic> diagnostics = result.Diagnostics;
+
+            if (showTree)
             {
-                Console.Write(" ");
-                Console.Write(t.Value);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                syntaxTree.Root.WriteTo(Console.Out);
+                Console.ResetColor();
             }
 
-            Console.WriteLine();
+            if (!diagnostics.Any())
+            {
+                Console.WriteLine(result.Value);
+            }
+            else
+            {
+                foreach (var diagnostic in diagnostics)
+                {
+                    var lineIndex = syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
+                    var lineNumber = lineIndex + 1;
+                    var line = syntaxTree.Text.Lines[lineIndex];
+                    var character = diagnostic.Span.Start - line.Start + 1;
 
-            indent += isLast ? "   " : "│  ";
+                    Console.WriteLine();
 
-            var lastChild = node.GetChildren().LastOrDefault();
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.Write($"({lineNumber}, {character}): ");
+                    Console.WriteLine(diagnostic);
+                    Console.ResetColor();
 
-            foreach (var child in node.GetChildren())
-                PrettyPrint(child, indent, child == lastChild);
+                    var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
+                    var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                    var prefix = syntaxTree.Text.ToString(prefixSpan);
+                    var error = syntaxTree.Text.ToString(diagnostic.Span);
+                    var suffix = syntaxTree.Text.ToString(suffixSpan);
+
+                    Console.Write("    ");
+                    Console.Write(prefix);
+
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.Write(error);
+                    Console.ResetColor();
+
+                    Console.Write(suffix);
+
+                    Console.WriteLine();
+                }
+
+                Console.WriteLine();
+            }
+
+            textBuilder.Clear();
         }
     }
-
 }
