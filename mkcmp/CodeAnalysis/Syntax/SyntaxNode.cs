@@ -49,7 +49,6 @@ public abstract class SyntaxNode
         var isToConsole = writer == Console.Out;
         var marker = isLast ? "└──" : "├──";
 
-
         if (isToConsole)
             Console.ForegroundColor = ConsoleColor.DarkGray;
 
@@ -67,11 +66,9 @@ public abstract class SyntaxNode
             writer.Write(t.Value);
         }
 
-
         writer.WriteLine();
 
         indent += isLast ? "   " : "│  ";
-
         var lastChild = node.GetChildren().LastOrDefault();
 
         foreach (var child in node.GetChildren())

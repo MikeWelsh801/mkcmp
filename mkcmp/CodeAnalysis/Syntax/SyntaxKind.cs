@@ -25,6 +25,9 @@ namespace Mkcmp.CodeAnalysis.Syntax
         FalseKeyword,
         TrueKeyword,
 
+        // Nodes
+        CompilationUnit,
+
         // Expressions
         LiteralExpression,
         NameExpression,
