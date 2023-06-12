@@ -59,9 +59,9 @@ namespace Mkcmp.CodeAnalysis
             Report(span, message);
         }
 
-        public void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        public void ReportCannotConvert(TextSpan span, Type fromType, Type toType)
         {
-            var message = $"Variable '{name}' is already declared in current scope.";
+            var message = $"Cannot convert variable of type '{fromType}' to type '{toType}'.";
             Report(span, message);
         }
     }

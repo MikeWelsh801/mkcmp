@@ -21,6 +21,10 @@ internal sealed class Binder
         var expression = binder.BindExpression(syntax.Expression);
         var variables = binder._scope.GetDeclaredVariables();
         var diagnostics = binder.Diagnostics.ToImmutableArray();
+
+        if (previous != null)
+            diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
+
         return new BoundGlobalScope(previous, diagnostics, variables, expression);
     }
 
@@ -34,11 +38,11 @@ internal sealed class Binder
         }
         BoundScope parent = null;
 
-        while(stack.Count > 0)
+        while (stack.Count > 0)
         {
             previous = stack.Pop();
             var scope = new BoundScope(parent);
-            foreach(var v in previous.Variables)
+            foreach (var v in previous.Variables)
                 scope.TryDeclare(v);
 
             parent = scope;
@@ -97,11 +101,17 @@ internal sealed class Binder
     {
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
-        var variable = new VariableSymbol(name, boundExpression.Type);
 
-        if (!_scope.TryDeclare(variable))
+        if (!_scope.TryLookup(name, out var variable))
         {
-            _diagostics.ReportVariableAlreadyDeclared(syntax.IdentifierToken.Span, name);
+            variable = new VariableSymbol(name, boundExpression.Type);
+            _scope.TryDeclare(variable);
+        }
+
+        if (boundExpression.Type != variable.Type)
+        {
+            _diagostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
+            return boundExpression;
         }
 
         return new BoundAssignmentExpression(variable, boundExpression);

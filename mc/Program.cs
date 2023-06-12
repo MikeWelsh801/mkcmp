@@ -18,9 +18,9 @@ internal static class Program
         {
             Console.ForegroundColor = ConsoleColor.Green;
             if (textBuilder.Length == 0)
-                Console.Write(" ");
+                Console.Write("» ");
             else
-                Console.Write(" ");
+                Console.Write("· ");
 
             Console.ResetColor();
 
@@ -42,6 +42,11 @@ internal static class Program
                 else if (input == "#cls")
                 {
                     Console.Clear();
+                    continue;
+                }
+                else if (input == "#reset")
+                {
+                    previous = null;
                     continue;
                 }
             }
