@@ -1,15 +1,14 @@
-namespace Mkcmp.CodeAnalysis.Binding
+namespace Mkcmp.CodeAnalysis.Binding;
+
+internal enum BoundBinaryOperatorKind
 {
-    internal enum BoundBinaryOperatorKind
-    {
-        Addition,
-        Subtraction,
-        Multiplication,
-        Division,
-        LogicalOr,
-        LogicalAnd,
-        Equals,
-        NotEquals
-    }
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    LogicalOr,
+    LogicalAnd,
+    Equals,
+    NotEquals
 }
 
