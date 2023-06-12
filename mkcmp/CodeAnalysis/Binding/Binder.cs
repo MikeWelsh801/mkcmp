@@ -18,7 +18,7 @@ internal sealed class Binder
     {
         var parentScope = CreateParentScopes(previous);
         var binder = new Binder(parentScope);
-        var expression = binder.BindExpression(syntax.Expression);
+        var expression = binder.BindStatement(syntax.Statement);
         var variables = binder._scope.GetDeclaredVariables();
         var diagnostics = binder.Diagnostics.ToImmutableArray();
 
@@ -52,6 +52,37 @@ internal sealed class Binder
     }
 
     public DiagnosticBag Diagnostics => _diagostics;
+
+    private BoundStatement BindStatement(StatementSyntax syntax)
+    {
+        return syntax.Kind switch
+        {
+            SyntaxKind.BlockStatement =>
+                BindBlockStatement((BlockStatementSyntax)syntax),
+            SyntaxKind.ExpressionStatement =>
+                BindExpressionStatement((ExpressionStatementSyntax)syntax),
+            _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
+        };
+    }
+
+    private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
+    {
+        var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
+        foreach (var statementSyntax in syntax.Statements)
+        {
+            var statement = BindStatement(statementSyntax);
+            statements.Add(statement);
+        }
+
+        return new BoundBlockStatement(statements.ToImmutable());
+    }
+
+    private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+    {
+        var expression = BindExpression(syntax.Expression);
+        return new BoundExpressionStatement(expression);
+    }
 
     public BoundExpression BindExpression(ExpressionSyntax syntax)
     {

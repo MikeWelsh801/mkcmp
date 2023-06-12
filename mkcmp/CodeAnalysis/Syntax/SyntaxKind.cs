@@ -19,6 +19,8 @@ public enum SyntaxKind
     EqualsEqualsToken,
     OpenParenToken,
     CloseParenToken,
+    OpenBraceToken,
+    CloseBraceToken,
     IdentifierToken,
 
     // Keywords
