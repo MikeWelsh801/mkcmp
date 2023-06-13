@@ -59,6 +59,8 @@ internal sealed class Binder
         {
             SyntaxKind.BlockStatement =>
                 BindBlockStatement((BlockStatementSyntax)syntax),
+            SyntaxKind.VariableDeclaration =>
+                BindVariableDeclaration((VariableDeclarationSyntax)syntax),
             SyntaxKind.ExpressionStatement =>
                 BindExpressionStatement((ExpressionStatementSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
@@ -68,6 +70,7 @@ internal sealed class Binder
     private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+        _scope = new BoundScope(_scope);
 
         foreach (var statementSyntax in syntax.Statements)
         {
@@ -75,7 +78,22 @@ internal sealed class Binder
             statements.Add(statement);
         }
 
+        _scope = _scope.Parent;
+
         return new BoundBlockStatement(statements.ToImmutable());
+    }
+
+    private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
+    {
+        var name = syntax.Identifier.Text;
+        var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
+        var initializer = BindExpression(syntax.Initializer);
+        var variable = new VariableSymbol(name, isReadOnly, initializer.Type);
+
+        if (!_scope.TryDeclare(variable))
+            _diagostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+
+        return new BoundVariableDeclaration(variable, initializer);
     }
 
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
@@ -135,9 +153,13 @@ internal sealed class Binder
 
         if (!_scope.TryLookup(name, out var variable))
         {
-            variable = new VariableSymbol(name, boundExpression.Type);
-            _scope.TryDeclare(variable);
+            _diagostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+            return boundExpression;
         }
+
+        if (variable.IsReadOnly)
+            _diagostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
+
 
         if (boundExpression.Type != variable.Type)
         {

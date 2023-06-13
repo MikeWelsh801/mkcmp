@@ -47,8 +47,10 @@ public static class SyntaxFacts
     {
         return text switch
         {
-            "true" => SyntaxKind.TrueKeyword,
             "false" => SyntaxKind.FalseKeyword,
+            "let" => SyntaxKind.LetKeyword,
+            "true" => SyntaxKind.TrueKeyword,
+            "var" => SyntaxKind.VarKeyword,
             _ => SyntaxKind.IdentifierToken
         };
     }
@@ -107,8 +109,12 @@ public static class SyntaxFacts
                 return "}";
             case SyntaxKind.FalseKeyword:
                 return "false";
+            case SyntaxKind.LetKeyword:
+                return "let";
             case SyntaxKind.TrueKeyword:
                 return "true";
+            case SyntaxKind.VarKeyword:
+                return "var";
             default:
                 return null;
         }
