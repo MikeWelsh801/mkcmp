@@ -1,12 +1,17 @@
-namespace Mkcmp.CodeAnalysis.Binding
+namespace Mkcmp.CodeAnalysis.Binding;
+
+internal enum BoundNodeKind
 {
-    internal enum BoundNodeKind
-    {
-        LiteralExpression,
-        VariableExpression,
-        AssignmentExpression,
-        UnaryExpression,
-        BinaryExpression,
-    }
+    // Statements
+    BlockStatement,
+    VariableDeclaration,
+    ExpressionStatement,
+
+    // Epressions
+    LiteralExpression,
+    VariableExpression,
+    AssignmentExpression,
+    UnaryExpression,
+    BinaryExpression,
 }
 

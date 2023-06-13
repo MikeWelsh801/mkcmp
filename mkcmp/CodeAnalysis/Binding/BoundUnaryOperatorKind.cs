@@ -1,10 +1,9 @@
-namespace Mkcmp.CodeAnalysis.Binding
+namespace Mkcmp.CodeAnalysis.Binding;
+
+internal enum BoundUnaryOperatorKind
 {
-    internal enum BoundUnaryOperatorKind
-    {
-        Identity,
-        Negation,
-        LogicalNegation
-    }
+    Identity,
+    Negation,
+    LogicalNegation
 }
 
