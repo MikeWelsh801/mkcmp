@@ -18,6 +18,10 @@ public class EvaluationTests
     [InlineData("3 == 3", true)]
     [InlineData("12 != 3", true)]
     [InlineData("12 != 12", false)]
+    [InlineData("12 < 3", false)]
+    [InlineData("12 <= 12", true)]
+    [InlineData("12 > 3", true)]
+    [InlineData("-12 >= 3", false)]
     [InlineData("true == false", false)]
     [InlineData("true == true", true)]
     [InlineData("true != true", false)]
@@ -139,5 +143,3 @@ public class EvaluationTests
         }
     }
 }
-
-
