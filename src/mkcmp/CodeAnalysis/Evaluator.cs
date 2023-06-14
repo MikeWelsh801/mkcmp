@@ -34,6 +34,9 @@ internal sealed class Evaluator
             case BoundNodeKind.IfStatement:
                 EvaluateIfStatement((BoundIfStatement)node);
                 break;
+            case BoundNodeKind.WhileStatement:
+                EvaluateWhileStatement((BoundWhileStatement)node);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)node);
                 break;
@@ -62,6 +65,12 @@ internal sealed class Evaluator
             EvaluateStatement(node.ThenStatement);
         else if (node.ElseStatement != null)
             EvaluateStatement(node.ElseStatement);
+    }
+
+    private void EvaluateWhileStatement(BoundWhileStatement node)
+    {
+        while ((bool)EvaluateExpression(node.Condition))
+            EvaluateStatement(node.Body);
     }
 
     private void EvaluateExpressionStatement(BoundExpressionStatement node)

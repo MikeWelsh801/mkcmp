@@ -14,4 +14,3 @@ internal sealed class BoundIfStatement : BoundStatement
     public BoundStatement ThenStatement { get; }
     public BoundStatement ElseStatement { get; }
 }
-

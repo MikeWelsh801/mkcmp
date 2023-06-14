@@ -57,6 +57,7 @@ public static class SyntaxFacts
             "let" => SyntaxKind.LetKeyword,
             "true" => SyntaxKind.TrueKeyword,
             "var" => SyntaxKind.VarKeyword,
+            "while" => SyntaxKind.WhileKeyword,
             _ => SyntaxKind.IdentifierToken
         };
     }
@@ -133,6 +134,8 @@ public static class SyntaxFacts
                 return "true";
             case SyntaxKind.VarKeyword:
                 return "var";
+            case SyntaxKind.WhileKeyword:
+                return "while";
             default:
                 return null;
         }
