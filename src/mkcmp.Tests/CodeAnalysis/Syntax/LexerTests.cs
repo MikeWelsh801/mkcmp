@@ -148,6 +148,10 @@ public class LexerTests
             return true;
         if (t1kind == SyntaxKind.GreaterToken && t2kind == SyntaxKind.EqualsToken)
             return true;
+        if (t1kind == SyntaxKind.ToKeyword && t2kind == SyntaxKind.EqualsToken)
+            return true;
+        if (t1kind == SyntaxKind.ToKeyword && t2kind == SyntaxKind.EqualsEqualsToken)
+            return true;
 
         // TODO: More cases
 

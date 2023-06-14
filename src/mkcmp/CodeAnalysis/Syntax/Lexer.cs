@@ -144,7 +144,7 @@ internal sealed class Lexer
                 ReadWhiteSpace();
                 break;
             default:
-                if (char.IsLetter(Current))
+                if (char.IsLetter(Current) || Current == '.')
                 {
                     ReadIdentifierOrKeyword();
                 }
@@ -191,11 +191,18 @@ internal sealed class Lexer
 
     private void ReadIdentifierOrKeyword()
     {
-        while (char.IsLetter(Current))
+        while (char.IsLetter(Current) || Current == '.')
             _position++;
 
         var length = _position - _start;
         var text = _text.ToString(_start, length);
+
+        if (Current == '=' && text == "..")
+        {
+            _position++;
+            text += '=';
+        }
+
         _kind = SyntaxFacts.GetKeywordKind(text);
     }
 }

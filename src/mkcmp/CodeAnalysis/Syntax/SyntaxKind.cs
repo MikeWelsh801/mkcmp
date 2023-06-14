@@ -30,11 +30,15 @@ public enum SyntaxKind
     // Keywords
     ElseKeyword,
     FalseKeyword,
+    ForKeyword,
     IfKeyword,
+    InKeyword,
     LetKeyword,
     TrueKeyword,
     VarKeyword,
     WhileKeyword,
+    ThroughKeyword,
+    ToKeyword,
 
     // Nodes
     CompilationUnit,
@@ -45,6 +49,7 @@ public enum SyntaxKind
     VariableDeclaration,
     IfStatement,
     WhileStatement,
+    ForStatement,
     ExpressionStatement,
 
     // Expressions

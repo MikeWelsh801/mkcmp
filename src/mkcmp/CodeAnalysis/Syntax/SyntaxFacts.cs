@@ -53,11 +53,15 @@ public static class SyntaxFacts
         {
             "else" => SyntaxKind.ElseKeyword,
             "false" => SyntaxKind.FalseKeyword,
+            "for" => SyntaxKind.ForKeyword,
             "if" => SyntaxKind.IfKeyword,
+            "in" => SyntaxKind.InKeyword,
             "let" => SyntaxKind.LetKeyword,
             "true" => SyntaxKind.TrueKeyword,
             "var" => SyntaxKind.VarKeyword,
             "while" => SyntaxKind.WhileKeyword,
+            ".." => SyntaxKind.ToKeyword,
+            "..=" => SyntaxKind.ThroughKeyword,
             _ => SyntaxKind.IdentifierToken
         };
     }
@@ -126,8 +130,12 @@ public static class SyntaxFacts
                 return "else";
             case SyntaxKind.FalseKeyword:
                 return "false";
+            case SyntaxKind.ForKeyword:
+                return "for";
             case SyntaxKind.IfKeyword:
                 return "if";
+            case SyntaxKind.InKeyword:
+                return "in";
             case SyntaxKind.LetKeyword:
                 return "let";
             case SyntaxKind.TrueKeyword:
@@ -136,6 +144,10 @@ public static class SyntaxFacts
                 return "var";
             case SyntaxKind.WhileKeyword:
                 return "while";
+            case SyntaxKind.ToKeyword:
+                return "..";
+            case SyntaxKind.ThroughKeyword:
+                return "..=";
             default:
                 return null;
         }

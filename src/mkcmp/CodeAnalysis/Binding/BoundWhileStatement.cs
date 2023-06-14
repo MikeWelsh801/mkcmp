@@ -12,4 +12,3 @@ internal sealed class BoundWhileStatement : BoundStatement
     public BoundExpression Condition { get; }
     public BoundStatement Body { get; }
 }
-
