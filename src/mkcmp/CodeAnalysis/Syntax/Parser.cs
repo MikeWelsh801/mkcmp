@@ -142,6 +142,10 @@ internal sealed class Parser
         var inKeyword = MatchToken(SyntaxKind.InKeyword);
         var lowerBound = ParseExpression();
         var rangeKeyword = NextToken();
+
+        if(rangeKeyword.Kind != SyntaxKind.ToKeyword && rangeKeyword.Kind != SyntaxKind.ThroughKeyword)
+            _diagnostics.ReportUnexpectedToken(rangeKeyword.Span, rangeKeyword.Kind, SyntaxKind.ToKeyword);
+
         var upperBound = ParseExpression();
         var body = ParseStatement();
         return new ForStatementSyntax(keyword, identifier, inKeyword,
