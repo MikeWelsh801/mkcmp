@@ -61,6 +61,8 @@ internal sealed class Binder
                 BindBlockStatement((BlockStatementSyntax)syntax),
             SyntaxKind.VariableDeclaration =>
                 BindVariableDeclaration((VariableDeclarationSyntax)syntax),
+            SyntaxKind.IfStatement =>
+                BindIfStatement((IfStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement =>
                 BindExpressionStatement((ExpressionStatementSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
@@ -96,10 +98,26 @@ internal sealed class Binder
         return new BoundVariableDeclaration(variable, initializer);
     }
 
+    private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+    {
+        var condition = BindExpression(syntax.Condition, typeof(bool));
+        var thenStatement = BindStatement(syntax.ThenStatement);
+        var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+        return new BoundIfStatement(condition, thenStatement, elseStatement);
+    }
+
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
         var expression = BindExpression(syntax.Expression);
         return new BoundExpressionStatement(expression);
+    }
+
+    public BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+    {
+        var result = BindExpression(syntax);
+        if (result.Type != targetType)
+            _diagostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
+        return result;
     }
 
     public BoundExpression BindExpression(ExpressionSyntax syntax)

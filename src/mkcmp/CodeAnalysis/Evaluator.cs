@@ -31,6 +31,9 @@ internal sealed class Evaluator
             case BoundNodeKind.VariableDeclaration:
                 EvaluateVariableDeclaration((BoundVariableDeclaration)node);
                 break;
+            case BoundNodeKind.IfStatement:
+                EvaluateIfStatement((BoundIfStatement)node);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)node);
                 break;
@@ -50,6 +53,15 @@ internal sealed class Evaluator
     {
         foreach (var statement in node.Statements)
             EvaluateStatement(statement);
+    }
+
+    private void EvaluateIfStatement(BoundIfStatement node)
+    {
+        var condition = (bool)EvaluateExpression(node.Condition);
+        if (condition)
+            EvaluateStatement(node.ThenStatement);
+        else if (node.ElseStatement != null)
+            EvaluateStatement(node.ElseStatement);
     }
 
     private void EvaluateExpressionStatement(BoundExpressionStatement node)
