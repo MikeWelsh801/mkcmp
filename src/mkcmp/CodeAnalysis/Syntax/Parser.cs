@@ -59,7 +59,6 @@ internal sealed class Parser
             return NextToken();
 
         _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
-        _position++;
         return new SyntaxToken(kind, Current.Position, null, null);
     }
 

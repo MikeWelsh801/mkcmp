@@ -191,17 +191,21 @@ internal sealed class Lexer
 
     private void ReadIdentifierOrKeyword()
     {
-        while (char.IsLetter(Current) || Current == '.')
-            _position++;
+        if (Current == '.')
+        {
+            while (Current == '.')
+                _position++;
+            if (Current == '=')
+                _position++;
+        }
+        else
+        {
+            while (char.IsLetter(Current))
+                _position++;
+        }
 
         var length = _position - _start;
         var text = _text.ToString(_start, length);
-
-        if (Current == '=' && text == "..")
-        {
-            _position++;
-            text += '=';
-        }
 
         _kind = SyntaxFacts.GetKeywordKind(text);
     }
