@@ -65,85 +65,6 @@ public class EvaluationTests
     }
 
     [Fact]
-    public void Evaluator_Name_Reports_Undefined()
-    {
-        var text = @"[x] + 10";
-
-        var diagnostics = @"
-            Variable 'x' doesn't exist.
-        ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
-    public void Evaluator_Assignment_Reports_Undefined()
-    {
-        var text = @"[x] = 10";
-
-        var diagnostics = @"
-            Variable 'x' doesn't exist.
-        ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
-    public void Evaluator_Unary_Reports_Undefined()
-    {
-        var text = @"[+]true";
-
-        var diagnostics = @"
-                Unary operator '+' is not defined for type 'System.Boolean'.
-            ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
-    public void Evaluator_Binary_Reports_CannotConvert()
-    {
-        var text = @"12 [+] true";
-        var diagnostics = @"
-            Binary operator '+' is not defined for types 'System.Int32' and 'System.Boolean'.
-        ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
-    public void Evaluator_Assignment_Reports_ReadOnly()
-    {
-        var text = @"
-            {
-                let x = 10
-                x [=] 9
-            }
-        ";
-        var diagnostics = @"
-            Variable 'x' is read-only and cannot be assigned to.
-        ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
-    public void Evaluator_Assignment_Reports_CannotConvert()
-    {
-        var text = @"
-            {
-                var x = 10
-                x = [true]
-            }
-        ";
-        var diagnostics = @"
-            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
-        ";
-
-        AssertDiagnostics(text, diagnostics);
-    }
-
-    [Fact]
     public void Evaluator_IfStatement_Reports_CannotConvert()
     {
         var text = @"
@@ -210,6 +131,86 @@ public class EvaluationTests
 
         AssertDiagnostics(text, diagnostics);
     }
+
+    [Fact]
+    public void Evaluator_NameExpression_Reports_Undefined()
+    {
+        var text = @"[x] + 10";
+
+        var diagnostics = @"
+            Variable 'x' doesn't exist.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_UnaryExpression_Reports_Undefined()
+    {
+        var text = @"[+]true";
+
+        var diagnostics = @"
+                Unary operator '+' is not defined for type 'System.Boolean'.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_BinaryExpression_Reports_Undefined()
+    {
+        var text = @"12 [+] true";
+        var diagnostics = @"
+            Binary operator '+' is not defined for types 'System.Int32' and 'System.Boolean'.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_AssignmentExpression_Reports_Undefined()
+    {
+        var text = @"[x] = 10";
+
+        var diagnostics = @"
+            Variable 'x' doesn't exist.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_AssignmentExpression_Reports_ReadOnly()
+    {
+        var text = @"
+            {
+                let x = 10
+                x [=] 9
+            }
+        ";
+        var diagnostics = @"
+            Variable 'x' is read-only and cannot be assigned to.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_AssignmentExpression_Reports_CannotConvert()
+    {
+        var text = @"
+            {
+                var x = 10
+                x = [true]
+            }
+        ";
+        var diagnostics = @"
+            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
     private static void AssertValue(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);
