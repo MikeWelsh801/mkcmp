@@ -184,6 +184,12 @@ internal sealed class Binder
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
+        if (string.IsNullOrEmpty(name))
+        {
+            // A token was inserted by the parser. We already reported an error,
+            // so we can just return an errror expression.
+            return new BoundLiteralExpression(0);
+        }
 
         if (!_scope.TryLookup(name, out var variable))
         {

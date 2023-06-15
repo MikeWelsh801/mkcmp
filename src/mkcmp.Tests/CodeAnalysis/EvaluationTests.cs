@@ -65,13 +65,29 @@ public class EvaluationTests
     }
 
     [Fact]
+    public void Evaluator_BlockStatement_NoInfiniteLoop()
+    {
+        var text = @"
+            {
+            [)]
+            []
+        ";
+        var diagnostics = @"
+            Unexpected token <CloseParenToken>, expected <IdentifierToken>.
+            Unexpected token <EndOfFileToken>, expected <CloseBraceToken>.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
     public void Evaluator_IfStatement_Reports_CannotConvert()
     {
         var text = @"
             {
                 var x = 0
                 if [10]
-                x = 10
+                    x = 10
             }
         ";
         var diagnostics = @"
@@ -139,6 +155,18 @@ public class EvaluationTests
 
         var diagnostics = @"
             Variable 'x' doesn't exist.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_NameExpression_Reports_NoErrorForInsertedToken()
+    {
+        var text = @"[]";
+
+        var diagnostics = @"
+            Unexpected token <EndOfFileToken>, expected <IdentifierToken>.
         ";
 
         AssertDiagnostics(text, diagnostics);
