@@ -101,11 +101,43 @@ public class EvaluationTests
     }
 
     [Fact]
-    public void Evaluator_Assigned_Reports_CannotConvert()
+    public void Evaluator_Binary_Reports_CannotConvert()
     {
         var text = @"12 [+] true";
         var diagnostics = @"
             Binary operator '+' is not defined for types 'System.Int32' and 'System.Boolean'.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_Assignment_Reports_ReadOnly()
+    {
+        var text = @"
+            {
+                let x = 10
+                x [=] 9
+            }
+        ";
+        var diagnostics = @"
+            Variable 'x' is read-only and cannot be assigned to.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_Assignment_Reports_CannotConvert()
+    {
+        var text = @"
+            {
+                var x = 10
+                x = [true]
+            }
+        ";
+        var diagnostics = @"
+            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
         ";
 
         AssertDiagnostics(text, diagnostics);
