@@ -59,6 +59,7 @@ internal sealed class Parser
             return NextToken();
 
         _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
+        _position++;
         return new SyntaxToken(kind, Current.Position, null, null);
     }
 
@@ -141,10 +142,8 @@ internal sealed class Parser
         var identifier = MatchToken(SyntaxKind.IdentifierToken);
         var inKeyword = MatchToken(SyntaxKind.InKeyword);
         var lowerBound = ParseExpression();
-        var rangeKeyword = NextToken();
-
-        if(rangeKeyword.Kind != SyntaxKind.ToKeyword && rangeKeyword.Kind != SyntaxKind.ThroughKeyword)
-            _diagnostics.ReportUnexpectedToken(rangeKeyword.Span, rangeKeyword.Kind, SyntaxKind.ToKeyword);
+        var expected = Current.Kind == SyntaxKind.ToKeyword ? SyntaxKind.ToKeyword : SyntaxKind.ThroughKeyword;
+        var rangeKeyword = MatchToken(expected);
 
         var upperBound = ParseExpression();
         var body = ParseStatement();
