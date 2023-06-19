@@ -49,5 +49,10 @@ public sealed class Compilation
         var value = evaluator.Evaluate();
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
+
+    public void EmitTree(TextWriter writer)
+    {
+        GlobalScope.Statement.WriteTo(writer);
+    }
 }
 
