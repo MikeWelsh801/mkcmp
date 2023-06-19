@@ -152,6 +152,14 @@ public class LexerTests
             return true;
         if (t1kind == SyntaxKind.ToKeyword && t2kind == SyntaxKind.EqualsEqualsToken)
             return true;
+        if (t1kind == SyntaxKind.PipeToken && t2kind == SyntaxKind.PipeToken)
+            return true;
+        if (t1kind == SyntaxKind.PipeToken && t2kind == SyntaxKind.PipePipeToken)
+            return true;
+        if (t1kind == SyntaxKind.AmpersandToken && t2kind == SyntaxKind.AmpersandToken)
+            return true;
+        if (t1kind == SyntaxKind.AmpersandToken && t2kind == SyntaxKind.AmpersandAmpersandToken)
+            return true;
 
         // TODO: More cases
 
