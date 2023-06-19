@@ -13,10 +13,14 @@ public enum SyntaxKind
     SlashToken,
     BangToken,
     EqualsToken,
+    GreaterToken,
+    LessToken,
     AmpersandAmpersandToken,
     PipePipeToken,
     BangEqualsToken,
     EqualsEqualsToken,
+    GreaterOrEqualsToken,
+    LessOrEqualsToken,
     OpenParenToken,
     CloseParenToken,
     OpenBraceToken,
@@ -24,17 +28,28 @@ public enum SyntaxKind
     IdentifierToken,
 
     // Keywords
+    ElseKeyword,
     FalseKeyword,
+    ForKeyword,
+    IfKeyword,
+    InKeyword,
     LetKeyword,
     TrueKeyword,
     VarKeyword,
+    WhileKeyword,
+    ThroughKeyword,
+    ToKeyword,
 
     // Nodes
     CompilationUnit,
+    ElseClause,
 
     // Statements
     BlockStatement,
     VariableDeclaration,
+    IfStatement,
+    WhileStatement,
+    ForStatement,
     ExpressionStatement,
 
     // Expressions

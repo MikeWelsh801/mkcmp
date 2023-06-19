@@ -112,6 +112,30 @@ internal sealed class Lexer
                     _kind = SyntaxKind.BangEqualsToken;
                 }
                 break;
+            case '<':
+                _position++;
+                if (Current != '=')
+                {
+                    _kind = SyntaxKind.LessToken;
+                }
+                else
+                {
+                    _position++;
+                    _kind = SyntaxKind.LessOrEqualsToken;
+                }
+                break;
+            case '>':
+                _position++;
+                if (Current != '=')
+                {
+                    _kind = SyntaxKind.GreaterToken;
+                }
+                else
+                {
+                    _position++;
+                    _kind = SyntaxKind.GreaterOrEqualsToken;
+                }
+                break;
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
                 ReadNumberToken();
@@ -120,7 +144,7 @@ internal sealed class Lexer
                 ReadWhiteSpace();
                 break;
             default:
-                if (char.IsLetter(Current))
+                if (char.IsLetter(Current) || Current == '.')
                 {
                     ReadIdentifierOrKeyword();
                 }
@@ -167,11 +191,22 @@ internal sealed class Lexer
 
     private void ReadIdentifierOrKeyword()
     {
-        while (char.IsLetter(Current))
-            _position++;
+        if (Current == '.')
+        {
+            while (Current == '.')
+                _position++;
+            if (Current == '=')
+                _position++;
+        }
+        else
+        {
+            while (char.IsLetter(Current))
+                _position++;
+        }
 
         var length = _position - _start;
         var text = _text.ToString(_start, length);
+
         _kind = SyntaxFacts.GetKeywordKind(text);
     }
 }

@@ -30,6 +30,10 @@ public static class SyntaxFacts
 
             case SyntaxKind.EqualsEqualsToken:
             case SyntaxKind.BangEqualsToken:
+            case SyntaxKind.LessToken:
+            case SyntaxKind.GreaterToken:
+            case SyntaxKind.LessOrEqualsToken:
+            case SyntaxKind.GreaterOrEqualsToken:
                 return 3;
 
             case SyntaxKind.AmpersandAmpersandToken:
@@ -47,10 +51,17 @@ public static class SyntaxFacts
     {
         return text switch
         {
+            "else" => SyntaxKind.ElseKeyword,
             "false" => SyntaxKind.FalseKeyword,
+            "for" => SyntaxKind.ForKeyword,
+            "if" => SyntaxKind.IfKeyword,
+            "in" => SyntaxKind.InKeyword,
             "let" => SyntaxKind.LetKeyword,
             "true" => SyntaxKind.TrueKeyword,
             "var" => SyntaxKind.VarKeyword,
+            "while" => SyntaxKind.WhileKeyword,
+            ".." => SyntaxKind.ToKeyword,
+            "..=" => SyntaxKind.ThroughKeyword,
             _ => SyntaxKind.IdentifierToken
         };
     }
@@ -91,6 +102,10 @@ public static class SyntaxFacts
                 return "!";
             case SyntaxKind.EqualsToken:
                 return "=";
+            case SyntaxKind.LessToken:
+                return "<";
+            case SyntaxKind.GreaterToken:
+                return ">";
             case SyntaxKind.AmpersandAmpersandToken:
                 return "&&";
             case SyntaxKind.PipePipeToken:
@@ -99,6 +114,10 @@ public static class SyntaxFacts
                 return "!=";
             case SyntaxKind.EqualsEqualsToken:
                 return "==";
+            case SyntaxKind.LessOrEqualsToken:
+                return "<=";
+            case SyntaxKind.GreaterOrEqualsToken:
+                return ">=";
             case SyntaxKind.OpenParenToken:
                 return "(";
             case SyntaxKind.CloseParenToken:
@@ -107,14 +126,28 @@ public static class SyntaxFacts
                 return "{";
             case SyntaxKind.CloseBraceToken:
                 return "}";
+            case SyntaxKind.ElseKeyword:
+                return "else";
             case SyntaxKind.FalseKeyword:
                 return "false";
+            case SyntaxKind.ForKeyword:
+                return "for";
+            case SyntaxKind.IfKeyword:
+                return "if";
+            case SyntaxKind.InKeyword:
+                return "in";
             case SyntaxKind.LetKeyword:
                 return "let";
             case SyntaxKind.TrueKeyword:
                 return "true";
             case SyntaxKind.VarKeyword:
                 return "var";
+            case SyntaxKind.WhileKeyword:
+                return "while";
+            case SyntaxKind.ToKeyword:
+                return "..";
+            case SyntaxKind.ThroughKeyword:
+                return "..=";
             default:
                 return null;
         }

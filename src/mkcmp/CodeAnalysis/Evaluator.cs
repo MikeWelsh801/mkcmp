@@ -1,4 +1,5 @@
 using Mkcmp.CodeAnalysis.Binding;
+using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis;
 
@@ -31,6 +32,15 @@ internal sealed class Evaluator
             case BoundNodeKind.VariableDeclaration:
                 EvaluateVariableDeclaration((BoundVariableDeclaration)node);
                 break;
+            case BoundNodeKind.IfStatement:
+                EvaluateIfStatement((BoundIfStatement)node);
+                break;
+            case BoundNodeKind.WhileStatement:
+                EvaluateWhileStatement((BoundWhileStatement)node);
+                break;
+            case BoundNodeKind.ForStatement:
+                EvaluateForStatement((BoundForStatement)node);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)node);
                 break;
@@ -50,6 +60,35 @@ internal sealed class Evaluator
     {
         foreach (var statement in node.Statements)
             EvaluateStatement(statement);
+    }
+
+    private void EvaluateIfStatement(BoundIfStatement node)
+    {
+        var condition = (bool)EvaluateExpression(node.Condition);
+        if (condition)
+            EvaluateStatement(node.ThenStatement);
+        else if (node.ElseStatement != null)
+            EvaluateStatement(node.ElseStatement);
+    }
+
+    private void EvaluateWhileStatement(BoundWhileStatement node)
+    {
+        while ((bool)EvaluateExpression(node.Condition))
+            EvaluateStatement(node.Body);
+    }
+
+    private void EvaluateForStatement(BoundForStatement node)
+    {
+        var lowerBound = (int)EvaluateExpression(node.LowerBound);
+        var upperBound = node.RangeKeyword.Kind == SyntaxKind.ThroughKeyword 
+                         ? (int)EvaluateExpression(node.UpperBound) + 1 
+                         : (int)EvaluateExpression(node.UpperBound);
+
+        for (int i = lowerBound; i < upperBound; i++)
+        {
+            _variables[node.Variable] = i;
+            EvaluateStatement(node.Body);
+        }
     }
 
     private void EvaluateExpressionStatement(BoundExpressionStatement node)
@@ -120,6 +159,10 @@ internal sealed class Evaluator
             BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
             BoundBinaryOperatorKind.Equals => Equals(left, right),
             BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
+            BoundBinaryOperatorKind.Less => (int)left < (int)right,
+            BoundBinaryOperatorKind.LessOrEqual => (int)left <= (int)right,
+            BoundBinaryOperatorKind.Greater => (int)left > (int)right,
+            BoundBinaryOperatorKind.GreaterOrEqual => (int)left >= (int)right,
             _ => throw new Exception($"Unexpected binary operator {b.Op}")
         };
     }

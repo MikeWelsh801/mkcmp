@@ -61,6 +61,12 @@ internal sealed class Binder
                 BindBlockStatement((BlockStatementSyntax)syntax),
             SyntaxKind.VariableDeclaration =>
                 BindVariableDeclaration((VariableDeclarationSyntax)syntax),
+            SyntaxKind.IfStatement =>
+                BindIfStatement((IfStatementSyntax)syntax),
+            SyntaxKind.WhileStatement =>
+                BindWhileStatement((WhileStatementSyntax)syntax),
+            SyntaxKind.ForStatement =>
+                BindForStatement((ForStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement =>
                 BindExpressionStatement((ExpressionStatementSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
@@ -96,10 +102,52 @@ internal sealed class Binder
         return new BoundVariableDeclaration(variable, initializer);
     }
 
+    private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+    {
+        var condition = BindExpression(syntax.Condition, typeof(bool));
+        var thenStatement = BindStatement(syntax.ThenStatement);
+        var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+        return new BoundIfStatement(condition, thenStatement, elseStatement);
+    }
+
+    private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
+    {
+        var condition = BindExpression(syntax.Condition, typeof(bool));
+        var body = BindStatement(syntax.Body);
+        return new BoundWhileStatement(condition, body);
+    }
+
+    private BoundStatement BindForStatement(ForStatementSyntax syntax)
+    {
+        var lowerBound = BindExpression(syntax.LowerBound, typeof(int));
+        var rangeKeyword = syntax.RangeKeyword;
+        var upperBound = BindExpression(syntax.UpperBound, typeof(int));
+
+        _scope = new BoundScope(_scope);
+
+        var name = syntax.Identifier.Text;
+        var variable = new VariableSymbol(name, true, typeof(int));
+        if (!_scope.TryDeclare(variable))
+            _diagostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+
+        var body = BindStatement(syntax.Body);
+        _scope = _scope.Parent;
+
+        return new BoundForStatement(variable, lowerBound, rangeKeyword, upperBound, body);
+    }
+
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
         var expression = BindExpression(syntax.Expression);
         return new BoundExpressionStatement(expression);
+    }
+
+    public BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+    {
+        var result = BindExpression(syntax);
+        if (result.Type != targetType)
+            _diagostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
+        return result;
     }
 
     public BoundExpression BindExpression(ExpressionSyntax syntax)
@@ -136,6 +184,12 @@ internal sealed class Binder
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
+        if (string.IsNullOrEmpty(name))
+        {
+            // A token was inserted by the parser. We already reported an error,
+            // so we can just return an errror expression.
+            return new BoundLiteralExpression(0);
+        }
 
         if (!_scope.TryLookup(name, out var variable))
         {

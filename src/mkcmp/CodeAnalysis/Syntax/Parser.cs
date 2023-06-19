@@ -75,6 +75,9 @@ internal sealed class Parser
         {
             SyntaxKind.OpenBraceToken => ParseBlockStatement(),
             SyntaxKind.LetKeyword or SyntaxKind.VarKeyword => ParseVariableDeclaration(),
+            SyntaxKind.IfKeyword => ParseIfStatement(),
+            SyntaxKind.WhileKeyword => ParseWhileStatement(),
+            SyntaxKind.ForKeyword => ParseForStatement(),
             _ => ParseExpressionStatement()
         };
     }
@@ -87,8 +90,22 @@ internal sealed class Parser
         while (Current.Kind != SyntaxKind.EndOfFileToken &&
                Current.Kind != SyntaxKind.CloseBraceToken)
         {
+            var  startToken = Current;
+
             var statement = ParseStatement();
             statements.Add(statement);
+
+            // If ParseStatement() did not consume any tokens,
+            // we need to skip the current token and continue
+            // in order to avoid an infinite loop.
+            //
+            // We don't need to report an error, because we've already
+            // tried to parse an expression statement and reported
+            // one.
+            if (Current == startToken)
+            {
+                NextToken();
+            }
         }
 
         var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
@@ -103,6 +120,48 @@ internal sealed class Parser
         var equals = MatchToken(SyntaxKind.EqualsToken);
         var initializer = ParseExpression();
         return new VariableDeclarationSyntax(keyword, identifier, equals, initializer);
+    }
+
+    private StatementSyntax ParseIfStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.IfKeyword);
+        var condition = ParseExpression();
+        var statement = ParseStatement();
+        var elseClause = ParseElseClause();
+        return new IfStatementSyntax(keyword, condition, statement, elseClause);
+    }
+
+    private ElseClauseSyntax ParseElseClause()
+    {
+        if (Current.Kind != SyntaxKind.ElseKeyword)
+            return null;
+
+        var keyword = MatchToken(SyntaxKind.ElseKeyword);
+        var statement = ParseStatement();
+        return new ElseClauseSyntax(keyword, statement);
+    }
+
+    private StatementSyntax ParseWhileStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.WhileKeyword);
+        var condition = ParseExpression();
+        var body = ParseStatement();
+        return new WhileStatementSyntax(keyword, condition, body);
+    }
+
+    private StatementSyntax ParseForStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.ForKeyword);
+        var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        var inKeyword = MatchToken(SyntaxKind.InKeyword);
+        var lowerBound = ParseExpression();
+        var expected = Current.Kind == SyntaxKind.ToKeyword ? SyntaxKind.ToKeyword : SyntaxKind.ThroughKeyword;
+        var rangeKeyword = MatchToken(expected);
+
+        var upperBound = ParseExpression();
+        var body = ParseStatement();
+        return new ForStatementSyntax(keyword, identifier, inKeyword,
+                                      lowerBound, rangeKeyword, upperBound, body);
     }
 
     private StatementSyntax ParseExpressionStatement()
