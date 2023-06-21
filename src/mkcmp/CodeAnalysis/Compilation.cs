@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Mkcmp.CodeAnalysis.Binding;
+using Mkcmp.CodeAnalysis.Lowering;
 using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis;
@@ -45,14 +46,22 @@ public sealed class Compilation
         if (diagnostics.Any())
             return new EvaluationResult(diagnostics, null);
 
-        var evaluator = new Evaluator(GlobalScope.Statement, variables);
+        var statement = GetStatement();
+        var evaluator = new Evaluator(statement, variables);
         var value = evaluator.Evaluate();
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
 
     public void EmitTree(TextWriter writer)
     {
-        GlobalScope.Statement.WriteTo(writer);
+        var statement = GetStatement();
+        statement.WriteTo(writer);
+    }
+
+    private BoundStatement GetStatement()
+    {
+        var result = GlobalScope.Statement;
+        return Lowerer.Lower(result);
     }
 }
 
