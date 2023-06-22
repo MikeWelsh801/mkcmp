@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using Mkcmp.CodeAnalysis.Binding;
+using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis.Lowering;
 
@@ -16,6 +18,28 @@ internal sealed class Lowerer : BoundTreeRewriter
 
     protected override BoundStatement RewriteForStatement(BoundForStatement node)
     {
+        var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.LowerBound);
+        var variableExpression = new BoundVariableExpression(node.Variable);
+        var op = node.RangeKeyword.Kind == SyntaxKind.ToKeyword ? SyntaxKind.LessToken : SyntaxKind.LessOrEqualsToken;
 
+        var condition = new BoundBinaryExpression(
+            variableExpression,
+            BoundBinaryOperator.Bind(op, typeof(int), typeof(int)),
+            node.UpperBound);
+
+        var increment = new BoundExpressionStatement(
+            new BoundAssignmentExpression(
+                node.Variable,
+                new BoundBinaryExpression(
+                    variableExpression,
+                    BoundBinaryOperator.Bind(SyntaxKind.PlusToken, typeof(int), typeof(int)),
+                    new BoundLiteralExpression(1))));
+
+        var whileBody = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(node.Body, increment));
+        var whileStatement = new BoundWhileStatement(condition, whileBody);
+        var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDeclaration, whileStatement));
+
+        return RewriteStatement(result);
     }
+
 }

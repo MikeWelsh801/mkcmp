@@ -37,6 +37,8 @@ internal abstract class BoundTreeRewriter
 
                 for (int j = 0; j < i; j++)
                     builder.Add(node.Statements[j]);
+
+                builder.Add(newStatement);
             }
         }
 
