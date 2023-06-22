@@ -1,4 +1,4 @@
-namespace Mkcmp.CodeAnalysis;
+namespace mkcmp.codeanalysis;
 
 public sealed class VariableSymbol
 {
