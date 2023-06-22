@@ -13,4 +13,9 @@ internal sealed class Lowerer : BoundTreeRewriter
         var lowerer = new Lowerer();
         return lowerer.RewriteStatement(statement);
     }
+
+    protected override BoundStatement RewriteForStatement(BoundForStatement node)
+    {
+
+    }
 }
