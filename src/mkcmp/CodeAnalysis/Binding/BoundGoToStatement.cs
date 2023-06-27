@@ -1,5 +1,3 @@
-using mkcmp.codeanalysis;
-
 namespace Mkcmp.CodeAnalysis.Binding;
 
 internal sealed class BoundGoToStatement : BoundStatement

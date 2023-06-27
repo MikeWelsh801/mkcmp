@@ -1,4 +1,4 @@
-namespace mkcmp.codeanalysis;
+namespace Mkcmp.CodeAnalysis;
 
 public sealed class LabelSymbol
 {
