@@ -48,7 +48,7 @@ internal sealed class Evaluator
                     var cgs = (BoundConditionalGoToStatement)s;
                     var condition = (bool)EvaluateExpression(cgs.Condition);
 
-                    if(condition != cgs.JumpIfFalse)
+                    if(condition == cgs.JumpIfTrue)
                         index = labelToIndex[cgs.Label];
                     else
                         index++;

@@ -108,7 +108,7 @@ internal abstract class BoundTreeRewriter
         if (condition == node.Condition)
                 return node;
 
-        return new BoundConditionalGoToStatement(node.Label, condition, node.JumpIfFalse);
+        return new BoundConditionalGoToStatement(node.Label, condition, node.JumpIfTrue);
     }
 
     protected virtual BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
