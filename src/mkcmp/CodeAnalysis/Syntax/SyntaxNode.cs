@@ -66,6 +66,9 @@ public abstract class SyntaxNode
             writer.Write(t.Value);
         }
 
+        if (isToConsole)
+            Console.ResetColor();
+
         writer.WriteLine();
 
         indent += isLast ? "   " : "│  ";

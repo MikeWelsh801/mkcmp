@@ -10,6 +10,7 @@ internal static class Program
     private static void Main()
     {
         var showTree = false;
+        var showProgram = false;
         var variables = new Dictionary<VariableSymbol, object>();
         var textBuilder = new StringBuilder();
         Compilation previous = null;
@@ -39,6 +40,12 @@ internal static class Program
                     Console.WriteLine(showTree ? "Showing parse trees." : "Not showing parse trees.");
                     continue;
                 }
+                else if (input == "#showProgram")
+                {
+                    showProgram = !showProgram;
+                    Console.WriteLine(showProgram ? "Showing bound tree." : "Not showing bound tree.");
+                    continue;
+                }
                 else if (input == "#cls")
                 {
                     Console.Clear();
@@ -63,18 +70,17 @@ internal static class Program
                                 ? new Compilation(syntaxTree)
                                 : previous.ContinueWith(syntaxTree);
 
-            var result = compilation.Evaluate(variables);
 
-            IReadOnlyList<Diagnostic> diagnostics = result.Diagnostics;
 
             if (showTree)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
                 syntaxTree.Root.WriteTo(Console.Out);
-                Console.ResetColor();
-            }
 
-            if (!diagnostics.Any())
+            if (showProgram)
+                compilation.EmitTree(Console.Out);
+
+            var result = compilation.Evaluate(variables);
+
+            if (!result.Diagnostics.Any())
             {
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine(result.Value);
@@ -83,7 +89,7 @@ internal static class Program
             }
             else
             {
-                foreach (var diagnostic in diagnostics)
+                foreach (var diagnostic in result.Diagnostics)
                 {
                     var lineIndex = syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
                     var lineNumber = lineIndex + 1;
