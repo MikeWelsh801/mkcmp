@@ -5,6 +5,13 @@ using Mkcmp.CodeAnalysis.Text;
 
 namespace Mkcmp;
 
+internal class Repl
+{
+    public void Run()
+    {
+    }
+}
+
 internal static class Program
 {
     private static void Main()
