@@ -29,14 +29,16 @@ internal abstract class Repl
 
     private sealed class SubmissionView
     {
+        private readonly Action<string> _lineRenderer;
         private readonly ObservableCollection<string> _submissionDocument;
         private readonly int _cursorTop;
         private int _renderedLineCount;
         private int _currentLineIndex;
         private int _currentCharacter;
 
-        public SubmissionView(ObservableCollection<string> submissionDocument)
+        public SubmissionView(Action<string> lineRenderer, ObservableCollection<string> submissionDocument)
         {
+            _lineRenderer = lineRenderer;
             _submissionDocument = submissionDocument;
             _submissionDocument.CollectionChanged += SubmissionDocumentChanged;
             _cursorTop = Console.CursorTop;
@@ -64,7 +66,7 @@ internal abstract class Repl
                     Console.Write("· ");
 
                 Console.ResetColor();
-                Console.Write(line);
+                _lineRenderer(line);
                 Console.WriteLine(new string(' ', Console.WindowWidth - line.Length));
 
                 lineCount++;
@@ -75,16 +77,6 @@ internal abstract class Repl
                 Console.SetCursorPosition(0, _cursorTop + lineCount + i);
                 Console.WriteLine(new string(' ', Console.WindowWidth));
             }
-
-            //var numberOfBlankLines = _renderedLineCount - lineCount;
-            //if (numberOfBlankLines > 0)
-            //{
-            //    var blankLine = new string(' ', Console.WindowWidth);
-            //    while (numberOfBlankLines > 0)
-            //    {
-            //        Console.WriteLine(blankLine);
-            //    }
-            //}
 
             _renderedLineCount = lineCount;
             Console.CursorVisible = true;
@@ -134,7 +126,7 @@ internal abstract class Repl
         _done = false;
 
         var document = new ObservableCollection<string>() { "" };
-        var view = new SubmissionView(document);
+        var view = new SubmissionView(RenderLine, document);
 
         while (!_done)
         {
@@ -344,6 +336,11 @@ internal abstract class Repl
     protected void ClearHistory()
     {
         _submissionHistory.Clear();
+    }
+
+    protected virtual void RenderLine(string line)
+    {
+        Console.WriteLine(line);
     }
 
     protected virtual void EvaluateMetaCommand(string input)

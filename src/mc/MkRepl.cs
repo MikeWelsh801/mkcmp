@@ -11,16 +11,61 @@ internal sealed class MkRepl : Repl
     private bool _showProgram = false;
     private readonly Dictionary<VariableSymbol, object> _variables = new();
 
-    protected override bool IsCompleteSubmission(string text)
+    protected override void RenderLine(string line)
     {
-        if (string.IsNullOrEmpty(text))
-            return true;
+        var tokens = SyntaxTree.ParseTokens(line);
+        foreach (SyntaxToken token in tokens)
+            PrintToken(token);
+    }
 
-        var syntaxTree = SyntaxTree.Parse(text);
-        if (syntaxTree.Diagnostics.Any())
-            return false;
-
-        return true;
+    private void PrintToken(SyntaxToken token)
+    {
+        switch (token.Kind)
+        {
+            // keywords
+            case SyntaxKind.IfKeyword:
+            case SyntaxKind.ElseKeyword:
+            case SyntaxKind.WhileKeyword:
+            case SyntaxKind.ForKeyword:
+            case SyntaxKind.LetKeyword:
+            case SyntaxKind.VarKeyword:
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                break;
+            case SyntaxKind.TrueKeyword:
+            case SyntaxKind.FalseKeyword:
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                break;
+            case SyntaxKind.InKeyword:
+            case SyntaxKind.ToKeyword:
+            case SyntaxKind.ThroughKeyword:
+            case SyntaxKind.EqualsToken:
+            case SyntaxKind.EqualsEqualsToken:
+            case SyntaxKind.BangToken:
+            case SyntaxKind.BangEqualsToken:
+            case SyntaxKind.LessToken:
+            case SyntaxKind.LessOrEqualsToken:
+            case SyntaxKind.GreaterToken:
+            case SyntaxKind.GreaterOrEqualsToken:
+            case SyntaxKind.PlusToken:
+            case SyntaxKind.MinusToken:
+            case SyntaxKind.StarToken:
+            case SyntaxKind.SlashToken:
+            case SyntaxKind.AmpersandToken:
+            case SyntaxKind.AmpersandAmpersandToken:
+            case SyntaxKind.PipeToken:
+            case SyntaxKind.PipePipeToken:
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                break;
+            case SyntaxKind.IdentifierToken:
+                break;
+            case SyntaxKind.NumberToken:
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                break;
+            default:
+                break;
+        }
+        Console.Write(token.Text);
+        Console.ResetColor();
     }
 
     protected override void EvaluateMetaCommand(string input)
@@ -45,6 +90,18 @@ internal sealed class MkRepl : Repl
                 base.EvaluateMetaCommand(input);
                 break;
         }
+    }
+
+    protected override bool IsCompleteSubmission(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return true;
+
+        var syntaxTree = SyntaxTree.Parse(text);
+        if (syntaxTree.Diagnostics.Any())
+            return false;
+
+        return true;
     }
 
     protected override void EvaluateSubmission(string text)
