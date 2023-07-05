@@ -61,6 +61,9 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.NumberToken:
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
                 break;
+            case SyntaxKind.StringToken:
+                Console.ForegroundColor = ConsoleColor.Green;
+                break;
             default:
                 break;
         }
@@ -95,6 +98,14 @@ internal sealed class MkRepl : Repl
     protected override bool IsCompleteSubmission(string text)
     {
         if (string.IsNullOrEmpty(text))
+            return true;
+
+        var lastTwoLinesAreBlank = text.Split(Environment.NewLine)
+                                       .Reverse()
+                                       .TakeWhile(s => string.IsNullOrEmpty(s))
+                                       .Take(2)
+                                       .Count() == 2;
+        if (lastTwoLinesAreBlank)
             return true;
 
         var syntaxTree = SyntaxTree.Parse(text);
