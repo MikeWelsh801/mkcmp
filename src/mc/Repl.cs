@@ -134,6 +134,9 @@ internal abstract class Repl
             HandleKey(key, document, view);
         }
 
+        view.CurrentLine = document.Count - 1;
+        view.CurrentCharacter = document[view.CurrentLine].Length;
+        
         Console.WriteLine();
 
         return string.Join(Environment.NewLine, document);
@@ -213,15 +216,24 @@ internal abstract class Repl
             _done = true;
             return;
         }
-
-        document.Add(string.Empty);
-        view.CurrentCharacter = 0;
-        view.CurrentLine++;
+        
+        InsertLine(document, view);
     }
 
     private void HandleControlEnter(ObservableCollection<string> document, SubmissionView view)
     {
-        _done = true;
+        InsertLine(document, view);
+    }
+
+    private void InsertLine(ObservableCollection<string> document, SubmissionView view)
+    {
+        var remainder = document[view.CurrentLine].Substring(view.CurrentCharacter);
+        document[view.CurrentLine] = document[view.CurrentLine].Substring(0, view.CurrentCharacter);
+
+        var lineIndex = view.CurrentLine + 1;
+        document.Insert(lineIndex, remainder);
+        view.CurrentCharacter = 0;
+        view.CurrentLine = lineIndex;
     }
 
     private void HandleLeftArrow(ObservableCollection<string> document, SubmissionView view)
@@ -253,7 +265,18 @@ internal abstract class Repl
     {
         var start = view.CurrentCharacter;
         if (start == 0)
+        {
+            if (view.CurrentLine == 0)
+                return;
+
+            var currentLine = document[view.CurrentLine];
+            var previousLine = document[view.CurrentLine - 1];
+            document.RemoveAt(view.CurrentLine);
+            view.CurrentLine--;
+            document[view.CurrentLine] = previousLine + currentLine;
+            view.CurrentCharacter = previousLine.Length;
             return;
+        }
 
         var lineIndex = view.CurrentLine;
         var line = document[lineIndex];
