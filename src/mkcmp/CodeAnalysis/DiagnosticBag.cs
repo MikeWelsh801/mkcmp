@@ -35,6 +35,12 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
+    public void ReportUnterminatedString(TextSpan span)
+    {
+        var message = "Unterminated string literal.";
+        Report(span, message);
+    }
+
     public void ReportUnexpectedToken(TextSpan span, SyntaxKind actualKind, SyntaxKind expectedKind)
     {
         var message = $"Unexpected token <{actualKind}>, expected <{expectedKind}>.";
@@ -43,7 +49,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportUndefinedUnaryOperator(TextSpan span, string? operatorText, Type operandType)
     {
-        var message =  $"Unary operator '{operatorText}' is not defined for type '{operandType}'.";
+        var message = $"Unary operator '{operatorText}' is not defined for type '{operandType}'.";
         Report(span, message);
     }
 
