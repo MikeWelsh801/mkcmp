@@ -136,7 +136,7 @@ internal abstract class Repl
 
         view.CurrentLine = document.Count - 1;
         view.CurrentCharacter = document[view.CurrentLine].Length;
-        
+
         Console.WriteLine();
 
         return string.Join(Environment.NewLine, document);
@@ -216,7 +216,7 @@ internal abstract class Repl
             _done = true;
             return;
         }
-        
+
         InsertLine(document, view);
     }
 
@@ -275,15 +275,16 @@ internal abstract class Repl
             view.CurrentLine--;
             document[view.CurrentLine] = previousLine + currentLine;
             view.CurrentCharacter = previousLine.Length;
-            return;
         }
-
-        var lineIndex = view.CurrentLine;
-        var line = document[lineIndex];
-        var before = line.Substring(0, start - 1);
-        var after = line.Substring(start);
-        document[lineIndex] = before + after;
-        view.CurrentCharacter--;
+        else
+        {
+            var lineIndex = view.CurrentLine;
+            var line = document[lineIndex];
+            var before = line.Substring(0, start - 1);
+            var after = line.Substring(start);
+            document[lineIndex] = before + after;
+            view.CurrentCharacter--;
+        }
     }
 
     private void HandleDelete(ObservableCollection<string> document, SubmissionView view)
@@ -291,12 +292,22 @@ internal abstract class Repl
         var start = view.CurrentCharacter;
         var lineIndex = view.CurrentLine;
         var line = document[lineIndex];
-        if (start >= line.Length)
-            return;
 
-        var before = line.Substring(0, start);
-        var after = line.Substring(start + 1);
-        document[lineIndex] = before + after;
+        if (start >= line.Length)
+        {
+            if (view.CurrentLine == document.Count - 1)
+                return;
+
+            var nextLine = document[view.CurrentLine + 1];
+            document[view.CurrentLine] += nextLine;
+            document.RemoveAt(view.CurrentLine + 1);
+        }
+        else
+        {
+            var before = line.Substring(0, start);
+            var after = line.Substring(start + 1);
+            document[lineIndex] = before + after;
+        }
     }
 
     private void HandleHome(ObservableCollection<string> document, SubmissionView view)
@@ -337,6 +348,9 @@ internal abstract class Repl
 
     private void UpdateDocumentFromHistory(ObservableCollection<string> document, SubmissionView view)
     {
+        if (_submissionHistory.Count == 0)
+            return;
+
         document.Clear();
         var historyItem = _submissionHistory[_submissionHistoryIndex];
         var lines = historyItem.Split(Environment.NewLine);
