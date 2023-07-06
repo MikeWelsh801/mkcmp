@@ -2,7 +2,7 @@ namespace Mkcmp.CodeAnalysis.Binding;
 
 internal sealed class BoundConditionalGoToStatement : BoundStatement
 {
-    public BoundConditionalGoToStatement(LabelSymbol label, BoundExpression condition, bool jumpIfTrue = true)
+    public BoundConditionalGoToStatement(BoundLabel label, BoundExpression condition, bool jumpIfTrue = true)
     {
         Label = label;
         Condition = condition;
@@ -10,7 +10,7 @@ internal sealed class BoundConditionalGoToStatement : BoundStatement
     }
 
     public override BoundNodeKind Kind => BoundNodeKind.ConditionalGoToStatement;
-    public LabelSymbol Label { get; }
+    public BoundLabel Label { get; }
     public BoundExpression Condition { get; }
     public bool JumpIfTrue { get; }
 }
