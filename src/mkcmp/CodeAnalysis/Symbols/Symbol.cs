@@ -2,7 +2,7 @@ namespace Mkcmp.CodeAnalysis.Symbols;
 
 public abstract class Symbol
 {
-    protected Symbol(string name)
+    internal Symbol(string name)
     {
         Name = name;
     }
