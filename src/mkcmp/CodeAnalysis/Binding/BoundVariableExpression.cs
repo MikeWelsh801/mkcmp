@@ -1,3 +1,5 @@
+using Mkcmp.CodeAnalysis.Symbols;
+
 namespace Mkcmp.CodeAnalysis.Binding;
 
 internal sealed class BoundVariableExpression : BoundExpression

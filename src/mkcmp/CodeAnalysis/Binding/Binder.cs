@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis.Binding;

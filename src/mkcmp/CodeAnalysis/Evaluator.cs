@@ -1,4 +1,5 @@
 using Mkcmp.CodeAnalysis.Binding;
+using Mkcmp.CodeAnalysis.Symbols;
 
 namespace Mkcmp.CodeAnalysis;
 
