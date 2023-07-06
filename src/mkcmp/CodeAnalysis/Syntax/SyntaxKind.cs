@@ -64,5 +64,6 @@ public enum SyntaxKind
     BinaryExpression,
     ParenthesizedExpression,
     AssignmentExpression,
+    CallExpression,
 }
 
