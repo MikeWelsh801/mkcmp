@@ -115,7 +115,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Cannot convert variable of type 'System.Int32' to type 'System.Boolean'.
+            Cannot convert variable of type 'int' to type 'bool'.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -132,7 +132,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Cannot convert variable of type 'System.Int32' to type 'System.Boolean'.
+            Cannot convert variable of type 'int' to type 'bool'.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -149,7 +149,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
+            Cannot convert variable of type 'bool' to type 'int'.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -166,7 +166,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
+            Cannot convert variable of type 'bool' to type 'int'.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -202,7 +202,7 @@ public class EvaluationTests
         var text = @"[+]true";
 
         var diagnostics = @"
-                Unary operator '+' is not defined for type 'System.Boolean'.
+                Unary operator '+' is not defined for type 'bool'.
             ";
 
         AssertDiagnostics(text, diagnostics);
@@ -213,7 +213,7 @@ public class EvaluationTests
     {
         var text = @"12 [+] true";
         var diagnostics = @"
-            Binary operator '+' is not defined for types 'System.Int32' and 'System.Boolean'.
+            Binary operator '+' is not defined for types 'int' and 'bool'.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -257,7 +257,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Cannot convert variable of type 'System.Boolean' to type 'System.Int32'.
+            Cannot convert variable of type 'bool' to type 'int'.
         ";
 
         AssertDiagnostics(text, diagnostics);
