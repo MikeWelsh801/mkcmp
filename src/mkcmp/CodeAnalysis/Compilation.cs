@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Mkcmp.CodeAnalysis.Binding;
 using Mkcmp.CodeAnalysis.Lowering;
+using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis;

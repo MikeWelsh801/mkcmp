@@ -1,8 +1,8 @@
-namespace Mkcmp.CodeAnalysis;
+namespace Mkcmp.CodeAnalysis.Binding;
 
-public sealed class LabelSymbol
+public sealed class BoundLabel
 {
-    internal LabelSymbol(string name)
+    internal BoundLabel(string name)
     {
         Name = name;
     }

@@ -31,9 +31,9 @@ internal abstract class Repl
     {
         private readonly Action<string> _lineRenderer;
         private readonly ObservableCollection<string> _submissionDocument;
-        private readonly int _cursorTop;
+        private int _cursorTop;
         private int _renderedLineCount;
-        private int _currentLineIndex;
+        private int _currentLine;
         private int _currentCharacter;
 
         public SubmissionView(Action<string> lineRenderer, ObservableCollection<string> submissionDocument)
@@ -57,6 +57,14 @@ internal abstract class Repl
 
             foreach (var line in _submissionDocument)
             {
+                if (_cursorTop + lineCount >= Console.WindowHeight)
+                {
+                    Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                    Console.WriteLine();
+                    if (_cursorTop > 0)
+                        _cursorTop--;
+                }
+
                 Console.SetCursorPosition(0, _cursorTop + lineCount);
                 Console.ForegroundColor = ConsoleColor.Green;
 
@@ -67,7 +75,7 @@ internal abstract class Repl
 
                 Console.ResetColor();
                 _lineRenderer(line);
-                Console.WriteLine(new string(' ', Console.WindowWidth - line.Length));
+                Console.Write(new string(' ', Console.WindowWidth - line.Length - 2));
 
                 lineCount++;
             }
@@ -85,22 +93,22 @@ internal abstract class Repl
 
         private void UpdateCursorPosition()
         {
-            Console.CursorTop = _cursorTop + CurrentLine;
-            Console.CursorLeft = 2 + CurrentCharacter;
+            Console.CursorTop = _cursorTop + _currentLine;
+            Console.CursorLeft = 2 + _currentCharacter;
         }
 
         public int CurrentLine
         {
-            get => _currentLineIndex;
+            get => _currentLine;
             set
             {
-                if (_currentLineIndex != value)
+                if (_currentLine != value)
                 {
-                    _currentLineIndex = value;
+                    _currentLine = value;
 
                     _currentCharacter = Math.Min(
                         _currentCharacter,
-                        _submissionDocument[_currentLineIndex].Length);
+                        _submissionDocument[_currentLine].Length);
                     UpdateCursorPosition();
                 }
             }

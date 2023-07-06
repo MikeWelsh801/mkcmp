@@ -1,4 +1,5 @@
 using Mkcmp.CodeAnalysis.Binding;
+using Mkcmp.CodeAnalysis.Symbols;
 
 namespace Mkcmp.CodeAnalysis;
 
@@ -17,7 +18,7 @@ internal sealed class Evaluator
 
     public object Evaluate()
     {
-        var labelToIndex = new Dictionary<LabelSymbol, int>();
+        var labelToIndex = new Dictionary<BoundLabel, int>();
 
         for (int i = 0; i < _root.Statements.Length; i++)
         {
@@ -136,12 +137,12 @@ internal sealed class Evaluator
             BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
             BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
             BoundBinaryOperatorKind.Division => (int)left / (int)right,
-            BoundBinaryOperatorKind.BitwiseAnd when (b.Type == typeof(int)) => (int)left & (int)right,
-            BoundBinaryOperatorKind.BitwiseAnd when (b.Type == typeof(bool)) => (bool)left & (bool)right,
-            BoundBinaryOperatorKind.BitwiseOr when (b.Type == typeof(int)) => (int)left | (int)right,
-            BoundBinaryOperatorKind.BitwiseOr when (b.Type == typeof(bool)) => (bool)left | (bool)right,
-            BoundBinaryOperatorKind.BitwiseXor when (b.Type == typeof(int)) => (int)left ^ (int)right,
-            BoundBinaryOperatorKind.BitwiseXor when (b.Type == typeof(bool)) => (bool)left ^ (bool)right,
+            BoundBinaryOperatorKind.BitwiseAnd when (b.Type == TypeSymbol.Int) => (int)left & (int)right,
+            BoundBinaryOperatorKind.BitwiseAnd when (b.Type == TypeSymbol.Bool) => (bool)left & (bool)right,
+            BoundBinaryOperatorKind.BitwiseOr when (b.Type == TypeSymbol.Int) => (int)left | (int)right,
+            BoundBinaryOperatorKind.BitwiseOr when (b.Type == TypeSymbol.Bool) => (bool)left | (bool)right,
+            BoundBinaryOperatorKind.BitwiseXor when (b.Type == TypeSymbol.Int) => (int)left ^ (int)right,
+            BoundBinaryOperatorKind.BitwiseXor when (b.Type == TypeSymbol.Bool) => (bool)left ^ (bool)right,
             BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
             BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
             BoundBinaryOperatorKind.Equals => Equals(left, right),
