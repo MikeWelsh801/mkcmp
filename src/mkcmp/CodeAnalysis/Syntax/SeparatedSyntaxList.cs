@@ -3,7 +3,12 @@ using System.Collections.Immutable;
 
 namespace Mkcmp.CodeAnalysis.Syntax;
 
-public sealed class SeparatedSyntaxList<T> : IEnumerable<T>
+public abstract class SeparatedSyntaxList
+{
+    public abstract ImmutableArray<SyntaxNode> GetWithSeparators();
+}
+
+public sealed class SeparatedSyntaxList<T> : SeparatedSyntaxList, IEnumerable<T>
     where T : SyntaxNode
 {
     private readonly ImmutableArray<SyntaxNode> _separatorsAndNodes;
@@ -19,7 +24,7 @@ public sealed class SeparatedSyntaxList<T> : IEnumerable<T>
 
     public SyntaxToken GetSeparator(int index) => (SyntaxToken) _separatorsAndNodes[index * 2 + 1];
 
-    public ImmutableArray<SyntaxNode> GetWithSeparators() => _separatorsAndNodes;
+    public override ImmutableArray<SyntaxNode> GetWithSeparators() => _separatorsAndNodes;
 
     public IEnumerator<T> GetEnumerator()
     {

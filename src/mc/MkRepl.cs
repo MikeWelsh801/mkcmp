@@ -58,6 +58,7 @@ internal sealed class MkRepl : Repl
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 break;
             case SyntaxKind.IdentifierToken:
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 break;
             case SyntaxKind.NumberToken:
                 Console.ForegroundColor = ConsoleColor.DarkCyan;

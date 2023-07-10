@@ -165,6 +165,8 @@ internal sealed class Binder
                 BindUnaryExpression((UnaryExpressionSyntax)syntax),
             SyntaxKind.BinaryExpression =>
                 BindBinaryExpression((BinaryExpressionSyntax)syntax),
+            SyntaxKind.CallExpression =>
+                BindCallExpression((CallExpressionSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
         };
     }
@@ -259,6 +261,46 @@ internal sealed class Binder
         }
 
         return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
+    }
+
+    private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
+    {
+        var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
+
+        foreach (var argument in syntax.Arguments)
+        {
+            var boundArgument = BindExpression(argument);
+            boundArguments.Add(boundArgument);
+        }
+
+        var functions = BuiltinFunctions.GetAll();
+        var function = functions.SingleOrDefault(f => f.Name == syntax.Identifier.Text);
+
+        if (function == null)
+        {
+            _diagostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+            return new BoundErrorExpression();
+        }
+
+        if (syntax.Arguments.Count != function.Parameters.Length)
+        {
+            _diagostics.ReportWrongArgumentCount(syntax.Span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
+            return new BoundErrorExpression();
+        }
+
+        for (int i = 0; i < syntax.Arguments.Count; i++)
+        {
+            var argument = boundArguments[i];
+            var parameter = function.Parameters[i];
+
+            if (argument.Type != parameter.Type)
+            {
+                _diagostics.ReportWrongArgumentType(syntax.Span, function.Name, parameter.Name, parameter.Type, argument.Type);
+                return new BoundErrorExpression();
+            }
+        }
+
+        return new BoundErrorExpression();
     }
 
     private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
