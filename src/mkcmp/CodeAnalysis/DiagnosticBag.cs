@@ -96,9 +96,15 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    internal void ReportWrongArgumentType(TextSpan span, string functionName, string parameterName, TypeSymbol expectedType, TypeSymbol actualType)
+    public void ReportWrongArgumentType(TextSpan span, string functionName, string parameterName, TypeSymbol expectedType, TypeSymbol actualType)
     {
         var message = $"Function '{functionName}' requires parameter '{parameterName}' to be of type '{expectedType}' but was '{actualType}'.";
+        Report(span, message);
+    }
+
+    public void ReportExpressionMustHaveValue(TextSpan span)
+    {
+        var message = $"Expression must have a value.";
         Report(span, message);
     }
 }

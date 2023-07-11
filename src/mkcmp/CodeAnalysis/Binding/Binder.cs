@@ -132,11 +132,11 @@ internal sealed class Binder
 
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
-        var expression = BindExpression(syntax.Expression);
+        var expression = BindExpression(syntax.Expression, canBeVoid: true);
         return new BoundExpressionStatement(expression);
     }
 
-    public BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
+    private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
     {
         var result = BindExpression(syntax);
         if (targetType != TypeSymbol.Error &&
@@ -149,7 +149,19 @@ internal sealed class Binder
         return result;
     }
 
-    public BoundExpression BindExpression(ExpressionSyntax syntax)
+    private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
+    {
+        var result = BindExpressionInternal(syntax);
+        if (!canBeVoid && result.Type == TypeSymbol.Void)
+        {
+            _diagostics.ReportExpressionMustHaveValue(syntax.Span);
+            return new BoundErrorExpression();
+        }
+
+        return result;
+    }
+
+    private BoundExpression BindExpressionInternal(ExpressionSyntax syntax)
     {
         return syntax.Kind switch
         {
