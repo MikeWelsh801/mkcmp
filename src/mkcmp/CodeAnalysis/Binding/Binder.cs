@@ -300,7 +300,7 @@ internal sealed class Binder
             }
         }
 
-        return new BoundErrorExpression();
+        return new BoundCallExpression(function, boundArguments.ToImmutable());
     }
 
     private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)

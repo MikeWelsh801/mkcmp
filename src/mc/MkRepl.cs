@@ -135,9 +135,12 @@ internal sealed class MkRepl : Repl
 
         if (!result.Diagnostics.Any())
         {
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine(result.Value);
-            Console.ResetColor();
+            if (result.Value != null)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine(result.Value);
+                Console.ResetColor();
+            }
             _previous = compilation;
         }
         else
