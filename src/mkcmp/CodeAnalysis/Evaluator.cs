@@ -94,6 +94,8 @@ internal sealed class Evaluator
                 EvaluateBinaryExpression((BoundBinaryExpression)node),
             BoundNodeKind.CallExpression =>
                 EvaluateCallExpression((BoundCallExpression)node),
+            BoundNodeKind.ConversionExpression =>
+                EvaluateConversionExpression((BoundConversionExpression)node),
             _ => throw new Exception($"Unexpected node {node.Kind}")
         };
     }
@@ -184,5 +186,19 @@ internal sealed class Evaluator
             throw new Exception($"Unexpected function '{node.Function.Name}'.");
         }
 
+    }
+
+    private object EvaluateConversionExpression(BoundConversionExpression node)
+    {
+        var value = EvaluateExpression(node.Expression);
+
+        if (node.Type == TypeSymbol.Bool)
+            return Convert.ToBoolean(value);
+        else if (node.Type == TypeSymbol.Int)
+            return Convert.ToInt32(value);
+        else if (node.Type == TypeSymbol.String)
+            return Convert.ToString(value);
+        else
+            throw new Exception($"Unexpected type '{node.Type}'.");
     }
 }
