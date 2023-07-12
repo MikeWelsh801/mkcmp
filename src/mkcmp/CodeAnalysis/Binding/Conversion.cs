@@ -32,6 +32,12 @@ internal sealed class Conversion
                 return Conversion.Explicit;
         }
 
+        if (from == TypeSymbol.String)
+        {
+            if (to == TypeSymbol.Int || to == TypeSymbol.Bool)
+                return Conversion.Explicit;
+        }
+
         return Conversion.None;
     }
 }
