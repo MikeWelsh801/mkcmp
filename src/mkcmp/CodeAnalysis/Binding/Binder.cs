@@ -357,7 +357,7 @@ internal sealed class Binder
         var variable = new VariableSymbol(name, isReadOnly, type);
 
         if (declare && !_scope.TryDeclareVariable(variable))
-            _diagostics.ReportVariableAlreadyDeclared(identifier.Span, name);
+            _diagostics.ReportSymbolAlreadyDeclared(identifier.Span, name);
 
         return variable;
     }
