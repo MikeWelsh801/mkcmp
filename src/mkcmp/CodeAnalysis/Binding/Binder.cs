@@ -77,6 +77,8 @@ internal sealed class Binder
                 BindIfStatement((IfStatementSyntax)syntax),
             SyntaxKind.WhileStatement =>
                 BindWhileStatement((WhileStatementSyntax)syntax),
+            SyntaxKind.DoWhileStatement =>
+                BindDoWhileStatement((DoWhileStatementSyntax)syntax),
             SyntaxKind.ForStatement =>
                 BindForStatement((ForStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement =>
@@ -123,6 +125,13 @@ internal sealed class Binder
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
         var body = BindStatement(syntax.Body);
         return new BoundWhileStatement(condition, body);
+    }
+
+    private BoundStatement BindDoWhileStatement(DoWhileStatementSyntax syntax)
+    {
+        var body = BindStatement(syntax.Body);
+        var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
+        return new BoundDoWhileStatement(body, condition);
     }
 
     private BoundStatement BindForStatement(ForStatementSyntax syntax)

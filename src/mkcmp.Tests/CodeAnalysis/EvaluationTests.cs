@@ -62,6 +62,7 @@ public class EvaluationTests
     [InlineData("{ var result = 0 for i in 1..10 { result = result + i } result }", 45)]
     [InlineData("{ var result = 0 for i in 1..=10 { result = result + i } result }", 55)]
     [InlineData("{ var a = 10 for i in 1..=(a = a - 1) { } a }", 9)]
+    [InlineData("{ var a = 0 do a = a + 1 while a < 10 a}", 10)]
     public void Test_Expression_Evaluation_Result(string text, object expectedValue)
     {
         AssertValue(text, expectedValue);
@@ -131,6 +132,25 @@ public class EvaluationTests
                 x = 10
             }
         ";
+        var diagnostics = @"
+            Cannot convert variable of type 'int' to type 'bool'.
+        ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_DoWhileStatement_Reports_CannotConvert()
+    {
+        var text = @"
+            {
+                var x = 0
+                do
+                    x = 10
+                while [10]
+            }
+        ";
+
         var diagnostics = @"
             Cannot convert variable of type 'int' to type 'bool'.
         ";

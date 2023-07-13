@@ -27,6 +27,7 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.IfKeyword:
             case SyntaxKind.ElseKeyword:
             case SyntaxKind.WhileKeyword:
+            case SyntaxKind.DoKeyword:
             case SyntaxKind.ForKeyword:
             case SyntaxKind.LetKeyword:
             case SyntaxKind.VarKeyword:

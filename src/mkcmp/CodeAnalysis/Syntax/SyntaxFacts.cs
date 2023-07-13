@@ -64,6 +64,7 @@ public static class SyntaxFacts
             "true" => SyntaxKind.TrueKeyword,
             "var" => SyntaxKind.VarKeyword,
             "while" => SyntaxKind.WhileKeyword,
+            "do" => SyntaxKind.DoKeyword,
             ".." => SyntaxKind.ToKeyword,
             "..=" => SyntaxKind.ThroughKeyword,
             _ => SyntaxKind.IdentifierToken
@@ -158,6 +159,8 @@ public static class SyntaxFacts
                 return "var";
             case SyntaxKind.WhileKeyword:
                 return "while";
+            case SyntaxKind.DoKeyword:
+                return "do";
             case SyntaxKind.ToKeyword:
                 return "..";
             case SyntaxKind.ThroughKeyword:
