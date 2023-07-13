@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
+using Mkcmp.CodeAnalysis.Text;
 
 namespace Mkcmp.CodeAnalysis.Binding;
 
@@ -158,15 +159,7 @@ internal sealed class Binder
 
     private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
     {
-        var result = BindExpression(syntax);
-        if (targetType != TypeSymbol.Error &&
-            result.Type != TypeSymbol.Error &&
-            result.Type != targetType)
-        {
-            _diagostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
-        }
-
-        return result;
+        return BindConversion(syntax, targetType);
     }
 
     private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
@@ -247,14 +240,9 @@ internal sealed class Binder
         if (variable.IsReadOnly)
             _diagostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
 
+        var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable.Type);
 
-        if (boundExpression.Type != variable.Type)
-        {
-            _diagostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
-            return boundExpression;
-        }
-
-        return new BoundAssignmentExpression(variable, boundExpression);
+        return new BoundAssignmentExpression(variable, convertedExpression);
     }
 
     private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
@@ -273,7 +261,6 @@ internal sealed class Binder
         }
 
         return new BoundUnaryExpression(boundOperator, boundOperand);
-
     }
 
     private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)
@@ -299,7 +286,7 @@ internal sealed class Binder
     {
         if (syntax.Arguments.Count == 1 && LookupType(syntax.Identifier.Text) is TypeSymbol type)
         {
-            return BindConversion(type, syntax.Arguments[0]);
+            return BindConversion(syntax.Arguments[0], type);
         }
 
         var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
@@ -337,15 +324,26 @@ internal sealed class Binder
         return new BoundCallExpression(function, boundArguments.ToImmutable());
     }
 
-    private BoundExpression BindConversion(TypeSymbol type, ExpressionSyntax syntax)
+    private BoundExpression BindConversion(ExpressionSyntax syntax, TypeSymbol type)
     {
         var expression = BindExpression(syntax);
+        return BindConversion(syntax.Span, expression, type);
+    }
+
+    private BoundExpression BindConversion(TextSpan diagnosticSpan, BoundExpression expression, TypeSymbol type)
+    {
         var conversion = Conversion.Classify(expression.Type, type);
+
         if (!conversion.Exists)
         {
-            _diagostics.ReportCannotConvert(syntax.Span, expression.Type, type);
+            if (expression.Type != TypeSymbol.Error && type != TypeSymbol.Error)
+                _diagostics.ReportCannotConvert(diagnosticSpan, expression.Type, type);
+
             return new BoundErrorExpression();
         }
+
+        if (conversion.IsIdentity)
+            return expression;
 
         return new BoundConversionExpression(type, expression);
     }
