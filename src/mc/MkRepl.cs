@@ -58,6 +58,7 @@ internal sealed class MkRepl : Repl
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 break;
             case SyntaxKind.IdentifierToken:
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 break;
             case SyntaxKind.NumberToken:
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
@@ -134,9 +135,12 @@ internal sealed class MkRepl : Repl
 
         if (!result.Diagnostics.Any())
         {
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine(result.Value);
-            Console.ResetColor();
+            if (result.Value != null)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine(result.Value);
+                Console.ResetColor();
+            }
             _previous = compilation;
         }
         else

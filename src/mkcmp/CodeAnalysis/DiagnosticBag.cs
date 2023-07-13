@@ -83,6 +83,30 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         var message = $"Variable '{name}' is read-only and cannot be assigned to.";
         Report(span, message);
     }
+
+    public void ReportUndefinedFunction(TextSpan span, string name)
+    {
+        var message = $"Function '{name}' doesn't exist.";
+        Report(span, message);
+    }
+
+    public void ReportWrongArgumentCount(TextSpan span, string name, int expectedCount, int actualCount)
+    {
+        var message = $"Function '{name}' requires {expectedCount} arguments but was given {actualCount}.";
+        Report(span, message);
+    }
+
+    public void ReportWrongArgumentType(TextSpan span, string functionName, string parameterName, TypeSymbol expectedType, TypeSymbol actualType)
+    {
+        var message = $"Function '{functionName}' requires parameter '{parameterName}' to be of type '{expectedType}' but was '{actualType}'.";
+        Report(span, message);
+    }
+
+    public void ReportExpressionMustHaveValue(TextSpan span)
+    {
+        var message = $"Expression must have a value.";
+        Report(span, message);
+    }
 }
 
 

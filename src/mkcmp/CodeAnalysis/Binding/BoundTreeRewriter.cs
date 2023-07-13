@@ -130,6 +130,8 @@ internal abstract class BoundTreeRewriter
             BoundNodeKind.AssignmentExpression => RewriteAssignmentExpression((BoundAssignmentExpression)node),
             BoundNodeKind.UnaryExpression => RewriteUnaryExpression((BoundUnaryExpression)node),
             BoundNodeKind.BinaryExpression => RewriteBinaryExpression((BoundBinaryExpression)node),
+            BoundNodeKind.CallExpression => RewriteCallExpression((BoundCallExpression)node),
+            BoundNodeKind.ConversionExpression => RewriteConversionExpression((BoundConversionExpression)node),
             _ => throw new Exception($"Unexpected node: {node.Kind}"),
         };
     }
@@ -176,5 +178,43 @@ internal abstract class BoundTreeRewriter
 
         return new BoundBinaryExpression(left, node.Op, right);
     }
-}
 
+    protected virtual BoundExpression RewriteCallExpression(BoundCallExpression node)
+    {
+        ImmutableArray<BoundExpression>.Builder? builder = null;
+
+        for (int i = 0; i < node.Arguments.Length; i++)
+        {
+            var oldArgument = node.Arguments[i];
+            var newArgument = RewriteExpression(oldArgument);
+
+            if (builder != null)
+            {
+                builder.Add(newArgument);
+            }
+            else if (newArgument != oldArgument)
+            {
+                builder = ImmutableArray.CreateBuilder<BoundExpression>(node.Arguments.Length);
+
+                for (int j = 0; j < i; j++)
+                    builder.Add(node.Arguments[j]);
+
+                builder.Add(newArgument);
+            }
+        }
+
+        if (builder == null)
+            return node;
+
+        return new BoundCallExpression(node.Function, builder.MoveToImmutable());
+    }
+
+    protected virtual BoundExpression RewriteConversionExpression(BoundConversionExpression node)
+    {
+        var expression = RewriteExpression(node.Expression);
+        if (expression == node.Expression)
+            return node;
+
+        return new BoundConversionExpression(node.Type, expression);
+    }
+}

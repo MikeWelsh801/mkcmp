@@ -37,19 +37,30 @@ internal sealed class Binder
             stack.Push(previous);
             previous = previous.Previous;
         }
-        BoundScope parent = null;
+
+        var parent = CreateRootScope();
+
 
         while (stack.Count > 0)
         {
             previous = stack.Pop();
             var scope = new BoundScope(parent);
             foreach (var v in previous.Variables)
-                scope.TryDeclare(v);
+                scope.TryDeclareVariable(v);
 
             parent = scope;
         }
 
         return parent;
+    }
+
+    private static BoundScope CreateRootScope()
+    {
+        var result = new BoundScope(null);
+
+        foreach (var f in BuiltinFunctions.GetAll())
+            result.TryDeclareFunction(f);
+        return result;
     }
 
     public DiagnosticBag Diagnostics => _diagostics;
@@ -132,11 +143,11 @@ internal sealed class Binder
 
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
-        var expression = BindExpression(syntax.Expression);
+        var expression = BindExpression(syntax.Expression, canBeVoid: true);
         return new BoundExpressionStatement(expression);
     }
 
-    public BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
+    private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
     {
         var result = BindExpression(syntax);
         if (targetType != TypeSymbol.Error &&
@@ -149,7 +160,19 @@ internal sealed class Binder
         return result;
     }
 
-    public BoundExpression BindExpression(ExpressionSyntax syntax)
+    private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
+    {
+        var result = BindExpressionInternal(syntax);
+        if (!canBeVoid && result.Type == TypeSymbol.Void)
+        {
+            _diagostics.ReportExpressionMustHaveValue(syntax.Span);
+            return new BoundErrorExpression();
+        }
+
+        return result;
+    }
+
+    private BoundExpression BindExpressionInternal(ExpressionSyntax syntax)
     {
         return syntax.Kind switch
         {
@@ -165,6 +188,8 @@ internal sealed class Binder
                 BindUnaryExpression((UnaryExpressionSyntax)syntax),
             SyntaxKind.BinaryExpression =>
                 BindBinaryExpression((BinaryExpressionSyntax)syntax),
+            SyntaxKind.CallExpression =>
+                BindCallExpression((CallExpressionSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
         };
     }
@@ -190,7 +215,7 @@ internal sealed class Binder
             return new BoundErrorExpression();
         }
 
-        if (!_scope.TryLookup(name, out var variable))
+        if (!_scope.TryLookupVariable(name, out var variable))
         {
             _diagostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
             return new BoundErrorExpression();
@@ -204,7 +229,7 @@ internal sealed class Binder
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
 
-        if (!_scope.TryLookup(name, out var variable))
+        if (!_scope.TryLookupVariable(name, out var variable))
         {
             _diagostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
             return boundExpression;
@@ -261,15 +286,81 @@ internal sealed class Binder
         return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
     }
 
+    private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
+    {
+        if (syntax.Arguments.Count == 1 && LookupType(syntax.Identifier.Text) is TypeSymbol type)
+        {
+            return BindConversion(type, syntax.Arguments[0]);
+        }
+
+        var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
+
+        foreach (var argument in syntax.Arguments)
+        {
+            var boundArgument = BindExpression(argument);
+            boundArguments.Add(boundArgument);
+        }
+
+        if (!_scope.TryLookupFunction(syntax.Identifier.Text, out var function))
+        {
+            _diagostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+            return new BoundErrorExpression();
+        }
+
+        if (syntax.Arguments.Count != function.Parameters.Length)
+        {
+            _diagostics.ReportWrongArgumentCount(syntax.Span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
+            return new BoundErrorExpression();
+        }
+
+        for (int i = 0; i < syntax.Arguments.Count; i++)
+        {
+            var argument = boundArguments[i];
+            var parameter = function.Parameters[i];
+
+            if (argument.Type != parameter.Type)
+            {
+                _diagostics.ReportWrongArgumentType(syntax.Span, function.Name, parameter.Name, parameter.Type, argument.Type);
+                return new BoundErrorExpression();
+            }
+        }
+
+        return new BoundCallExpression(function, boundArguments.ToImmutable());
+    }
+
+    private BoundExpression BindConversion(TypeSymbol type, ExpressionSyntax syntax)
+    {
+        var expression = BindExpression(syntax);
+        var conversion = Conversion.Classify(expression.Type, type);
+        if (!conversion.Exists)
+        {
+            _diagostics.ReportCannotConvert(syntax.Span, expression.Type, type);
+            return new BoundErrorExpression();
+        }
+
+        return new BoundConversionExpression(type, expression);
+    }
+
     private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
     {
         var name = identifier.Text ?? "?";
         var declare = !identifier.IsMissing;
         var variable = new VariableSymbol(name, isReadOnly, type);
 
-        if (declare && !_scope.TryDeclare(variable))
+        if (declare && !_scope.TryDeclareVariable(variable))
             _diagostics.ReportVariableAlreadyDeclared(identifier.Span, name);
 
         return variable;
+    }
+
+    private TypeSymbol LookupType(string name)
+    {
+        return name switch
+        {
+            "bool" => TypeSymbol.Bool,
+            "int" => TypeSymbol.Int,
+            "string" => TypeSymbol.String,
+            _ => null,
+        };
     }
 }

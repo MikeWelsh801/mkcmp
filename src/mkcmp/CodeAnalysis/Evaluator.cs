@@ -7,6 +7,7 @@ internal sealed class Evaluator
 {
     private readonly BoundBlockStatement _root;
     private readonly Dictionary<VariableSymbol, object> _variables;
+    private Random _random;
 
     private object _lastValue;
 
@@ -49,7 +50,7 @@ internal sealed class Evaluator
                     var cgs = (BoundConditionalGoToStatement)s;
                     var condition = (bool)EvaluateExpression(cgs.Condition);
 
-                    if(condition == cgs.JumpIfTrue)
+                    if (condition == cgs.JumpIfTrue)
                         index = labelToIndex[cgs.Label];
                     else
                         index++;
@@ -88,9 +89,13 @@ internal sealed class Evaluator
             BoundNodeKind.AssignmentExpression =>
                 EvaluateAssignmentExpression((BoundAssignmentExpression)node),
             BoundNodeKind.UnaryExpression =>
-                EvalueateUnaryExpression((BoundUnaryExpression)node),
+                EvaluateUnaryExpression((BoundUnaryExpression)node),
             BoundNodeKind.BinaryExpression =>
                 EvaluateBinaryExpression((BoundBinaryExpression)node),
+            BoundNodeKind.CallExpression =>
+                EvaluateCallExpression((BoundCallExpression)node),
+            BoundNodeKind.ConversionExpression =>
+                EvaluateConversionExpression((BoundConversionExpression)node),
             _ => throw new Exception($"Unexpected node {node.Kind}")
         };
     }
@@ -112,7 +117,7 @@ internal sealed class Evaluator
         return value;
     }
 
-    private object EvalueateUnaryExpression(BoundUnaryExpression u)
+    private object EvaluateUnaryExpression(BoundUnaryExpression u)
     {
         var operand = EvaluateExpression(u.Operand);
 
@@ -133,7 +138,8 @@ internal sealed class Evaluator
 
         return b.Op.Kind switch
         {
-            BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+            BoundBinaryOperatorKind.Addition when (b.Type == TypeSymbol.Int) => (int)left + (int)right,
+            BoundBinaryOperatorKind.Addition when (b.Type == TypeSymbol.String) => (string)left + (string)right,
             BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
             BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
             BoundBinaryOperatorKind.Division => (int)left / (int)right,
@@ -153,5 +159,46 @@ internal sealed class Evaluator
             BoundBinaryOperatorKind.GreaterOrEqual => (int)left >= (int)right,
             _ => throw new Exception($"Unexpected binary operator {b.Op}")
         };
+    }
+
+    private object EvaluateCallExpression(BoundCallExpression node)
+    {
+        if (node.Function == BuiltinFunctions.Input)
+        {
+            return Console.ReadLine();
+        }
+        else if (node.Function == BuiltinFunctions.Print)
+        {
+            var message = (string)EvaluateExpression(node.Arguments[0]);
+            Console.WriteLine(message);
+            return null;
+        }
+        else if (node.Function == BuiltinFunctions.Rand)
+        {
+            if (_random == null)
+                _random = new();
+
+            var max = (int)EvaluateExpression(node.Arguments[0]);
+            return _random.Next(max);
+        }
+        else
+        {
+            throw new Exception($"Unexpected function '{node.Function.Name}'.");
+        }
+
+    }
+
+    private object EvaluateConversionExpression(BoundConversionExpression node)
+    {
+        var value = EvaluateExpression(node.Expression);
+
+        if (node.Type == TypeSymbol.Bool)
+            return Convert.ToBoolean(value);
+        else if (node.Type == TypeSymbol.Int)
+            return Convert.ToInt32(value);
+        else if (node.Type == TypeSymbol.String)
+            return Convert.ToString(value);
+        else
+            throw new Exception($"Unexpected type '{node.Type}'.");
     }
 }

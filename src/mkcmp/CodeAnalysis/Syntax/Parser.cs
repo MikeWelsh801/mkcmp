@@ -227,7 +227,7 @@ internal sealed class Parser
             SyntaxKind.FalseKeyword or SyntaxKind.TrueKeyword => ParseBooleanLiteral(),
             SyntaxKind.NumberToken => ParseNumberLiteral(),
             SyntaxKind.StringToken => ParseStringLiteral(),
-            SyntaxKind.IdentifierToken or _ => ParseNameExpression(),
+            SyntaxKind.IdentifierToken or _ => ParseNameOrCallExpression(),
         };
     }
 
@@ -257,6 +257,45 @@ internal sealed class Parser
     {
         var stringToken = MatchToken(SyntaxKind.StringToken);
         return new LiteralExpressionSyntax(stringToken);
+    }
+
+
+    private ExpressionSyntax ParseNameOrCallExpression()
+    {
+        if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenParenToken)
+            return ParseCallExpression();
+
+        return ParseNameExpression();
+    }
+
+    private ExpressionSyntax ParseCallExpression()
+    {
+        var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        var openParanthesisToken = MatchToken(SyntaxKind.OpenParenToken);
+        var arguments = ParseArguments();
+        var closeParenthesisToken = MatchToken(SyntaxKind.CloseParenToken);
+
+        return new CallExpressionSyntax(identifier, openParanthesisToken, arguments, closeParenthesisToken);
+    }
+
+    private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
+    {
+        var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
+
+        while (Current.Kind != SyntaxKind.CloseParenToken &&
+               Current.Kind != SyntaxKind.EndOfFileToken)
+        {
+            var expression = ParseExpression();
+            nodesAndSeparators.Add(expression);
+
+            if (Current.Kind != SyntaxKind.CloseParenToken)
+            {
+                var comma = MatchToken(SyntaxKind.CommaToken);
+                nodesAndSeparators.Add(comma);
+            }
+        }
+
+        return new SeparatedSyntaxList<ExpressionSyntax>(nodesAndSeparators.ToImmutableArray());
     }
 
     private ExpressionSyntax ParseNameExpression()

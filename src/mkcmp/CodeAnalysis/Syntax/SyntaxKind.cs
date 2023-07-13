@@ -30,6 +30,7 @@ public enum SyntaxKind
     CloseParenToken,
     OpenBraceToken,
     CloseBraceToken,
+    CommaToken,
     IdentifierToken,
 
     // Keywords
@@ -64,5 +65,6 @@ public enum SyntaxKind
     BinaryExpression,
     ParenthesizedExpression,
     AssignmentExpression,
+    CallExpression,
 }
 
