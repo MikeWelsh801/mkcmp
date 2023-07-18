@@ -31,6 +31,7 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.ForKeyword:
             case SyntaxKind.LetKeyword:
             case SyntaxKind.VarKeyword:
+            case SyntaxKind.ColonToken:
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 break;
             case SyntaxKind.TrueKeyword:
@@ -58,11 +59,11 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.PipePipeToken:
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 break;
-            case SyntaxKind.IdentifierToken:
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                break;
             case SyntaxKind.NumberToken:
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
+                break;
+            case SyntaxKind.IdentifierToken:
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 break;
             case SyntaxKind.StringToken:
                 Console.ForegroundColor = ConsoleColor.Green;
