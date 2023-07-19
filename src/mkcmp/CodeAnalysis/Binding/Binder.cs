@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Mkcmp.CodeAnalysis.Lowering;
 using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
 using Mkcmp.CodeAnalysis.Text;
@@ -8,26 +9,96 @@ namespace Mkcmp.CodeAnalysis.Binding;
 internal sealed class Binder
 {
     private readonly DiagnosticBag _diagostics = new();
-
+    private readonly FunctionSymbol _function;
     private BoundScope _scope;
 
-    public Binder(BoundScope parent)
+    public Binder(BoundScope parent, FunctionSymbol function)
     {
         _scope = new(parent);
+        _function = function;
+
+        if (function != null)
+        {
+            foreach (var p in function.Parameters)
+                _scope.TryDeclareVariable(p);
+        }
     }
 
     public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax)
     {
         var parentScope = CreateParentScopes(previous);
-        var binder = new Binder(parentScope);
-        var expression = binder.BindStatement(syntax.Statement);
+        var binder = new Binder(parentScope, function: null);
+
+        foreach (var function in syntax.Members.OfType<FunctionDeclarationSyntax>())
+            binder.BindFunctionDeclaration(function);
+
+        var statementBuilder = ImmutableArray.CreateBuilder<BoundStatement>();
+
+        foreach (var globasStatement in syntax.Members.OfType<GlabalStatementSyntax>())
+        {
+            var s = binder.BindStatement(globasStatement.Statement);
+            statementBuilder.Add(s);
+        }
+
+        var statement = new BoundBlockStatement(statementBuilder.ToImmutable());
+        var functions = binder._scope.GetDeclaredFunctions();
         var variables = binder._scope.GetDeclaredVariables();
         var diagnostics = binder.Diagnostics.ToImmutableArray();
 
         if (previous != null)
             diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
 
-        return new BoundGlobalScope(previous, diagnostics, variables, expression);
+        return new BoundGlobalScope(previous, diagnostics, functions, variables, statement);
+    }
+
+    public static BoundProgram BindProgram(BoundGlobalScope globalScope)
+    {
+        var parentScope = CreateParentScopes(globalScope);
+
+        var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
+        var diagnostics = new DiagnosticBag();
+
+        foreach (var function in globalScope.Functions)
+        {
+            var binder = new Binder(parentScope, function);
+            var body = binder.BindStatement(function.Declaration.Body);
+            var loweredBody = Lowerer.Lower(body);
+            functionBodies.Add(function, loweredBody);
+
+            diagnostics.AddRange(binder.Diagnostics);
+        }
+
+        return new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
+    }
+
+    private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
+    {
+        var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
+
+        var seenParameterNames = new HashSet<string>();
+
+        foreach (var parameterSyntax in syntax.Parameters)
+        {
+            var parameterName = parameterSyntax.Identifier.Text;
+            var parameterType = BindTypeClause(parameterSyntax.Type);
+            if (!seenParameterNames.Add(parameterName))
+            {
+                _diagostics.ReportParameterAlreadyDeclared(parameterSyntax.Span, parameterName);
+            }
+            else
+            {
+                var parameter = new ParameterSymbol(parameterName, parameterType);
+                parameters.Add(parameter);
+            }
+        }
+
+        var type = BindTypeClause(syntax.Type) ?? TypeSymbol.Void;
+        if (type != TypeSymbol.Void)
+            _diagostics.XXX_ReportFunctionsAreUnsuported(syntax.Type.Span);
+
+        var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
+        if (!_scope.TryDeclareFunction(function))
+            _diagostics.ReportSymbolAlreadyDeclared(syntax.Identifier.Span, function.Name);
     }
 
     private static BoundScope CreateParentScopes(BoundGlobalScope previous)
@@ -46,6 +117,10 @@ internal sealed class Binder
         {
             previous = stack.Pop();
             var scope = new BoundScope(parent);
+
+            foreach (var f in previous.Functions)
+                scope.TryDeclareFunction(f);
+
             foreach (var v in previous.Variables)
                 scope.TryDeclareVariable(v);
 
@@ -330,7 +405,7 @@ internal sealed class Binder
 
             if (argument.Type != parameter.Type)
             {
-                _diagostics.ReportWrongArgumentType(syntax.Span, function.Name, parameter.Name, parameter.Type, argument.Type);
+                _diagostics.ReportWrongArgumentType(syntax.Arguments[i].Span, function.Name, parameter.Name, parameter.Type, argument.Type);
                 return new BoundErrorExpression();
             }
         }
@@ -371,7 +446,9 @@ internal sealed class Binder
     {
         var name = identifier.Text ?? "?";
         var declare = !identifier.IsMissing;
-        var variable = new VariableSymbol(name, isReadOnly, type);
+        var variable = _function == null
+            ? (VariableSymbol)new GlobalVariableSymbol(name, isReadOnly, type)
+            : new LocalVariableSymbol(name, isReadOnly, type);
 
         if (declare && !_scope.TryDeclareVariable(variable))
             _diagostics.ReportSymbolAlreadyDeclared(identifier.Span, name);

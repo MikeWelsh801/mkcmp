@@ -58,6 +58,7 @@ public static class SyntaxFacts
             "else" => SyntaxKind.ElseKeyword,
             "false" => SyntaxKind.FalseKeyword,
             "for" => SyntaxKind.ForKeyword,
+            "fun" => SyntaxKind.FunctionKeyword,
             "if" => SyntaxKind.IfKeyword,
             "in" => SyntaxKind.InKeyword,
             "let" => SyntaxKind.LetKeyword,
@@ -149,6 +150,8 @@ public static class SyntaxFacts
                 return "false";
             case SyntaxKind.ForKeyword:
                 return "for";
+            case SyntaxKind.FunctionKeyword:
+                return "fun";
             case SyntaxKind.IfKeyword:
                 return "if";
             case SyntaxKind.InKeyword:
