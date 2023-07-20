@@ -145,7 +145,7 @@ internal sealed class Parser
     private MemberSyntax ParseGlobalStatement()
     {
         var statement = ParseStatement();
-        return new GlabalStatementSyntax(statement);
+        return new GlobalStatementSyntax(statement);
     }
 
     private StatementSyntax ParseStatement()

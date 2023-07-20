@@ -1,8 +1,8 @@
 namespace Mkcmp.CodeAnalysis.Syntax;
 
-public sealed class GlabalStatementSyntax : MemberSyntax
+public sealed class GlobalStatementSyntax : MemberSyntax
 {
-    public GlabalStatementSyntax(StatementSyntax statement)
+    public GlobalStatementSyntax(StatementSyntax statement)
     {
         Statement = statement;
     }

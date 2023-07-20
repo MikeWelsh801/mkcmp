@@ -34,7 +34,7 @@ internal sealed class Binder
 
         var statementBuilder = ImmutableArray.CreateBuilder<BoundStatement>();
 
-        foreach (var globasStatement in syntax.Members.OfType<GlabalStatementSyntax>())
+        foreach (var globasStatement in syntax.Members.OfType<GlobalStatementSyntax>())
         {
             var s = binder.BindStatement(globasStatement.Statement);
             statementBuilder.Add(s);
@@ -58,14 +58,19 @@ internal sealed class Binder
         var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
         var diagnostics = new DiagnosticBag();
 
-        foreach (var function in globalScope.Functions)
+        var scope = globalScope;
+        while (scope != null)
         {
-            var binder = new Binder(parentScope, function);
-            var body = binder.BindStatement(function.Declaration.Body);
-            var loweredBody = Lowerer.Lower(body);
-            functionBodies.Add(function, loweredBody);
+            foreach (var function in scope.Functions)
+            {
+                var binder = new Binder(parentScope, function);
+                var body = binder.BindStatement(function.Declaration.Body);
+                var loweredBody = Lowerer.Lower(body);
+                functionBodies.Add(function, loweredBody);
 
-            diagnostics.AddRange(binder.Diagnostics);
+                diagnostics.AddRange(binder.Diagnostics);
+            }
+            scope = scope.Previous;
         }
 
         return new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
@@ -74,7 +79,6 @@ internal sealed class Binder
     private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
     {
         var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
-
         var seenParameterNames = new HashSet<string>();
 
         foreach (var parameterSyntax in syntax.Parameters)

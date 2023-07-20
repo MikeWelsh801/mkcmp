@@ -78,8 +78,8 @@ internal sealed class Evaluator
     private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
     {
         var value = EvaluateExpression(node.Initializer);
-        _globals[node.Variable] = value;
         _lastValue = value;
+        Assign(node.Variable, value);
     }
 
     private void EvaluateExpressionStatement(BoundExpressionStatement node)
@@ -130,16 +130,7 @@ internal sealed class Evaluator
     private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
     {
         var value = EvaluateExpression(a.Expression);
-
-        if (a.Variable.Kind == SymbolKind.GlobalVariable)
-        {
-            _globals[a.Variable] = value;
-        }
-        else
-        {
-            var locals = _locals.Peek();
-            locals[a.Variable] = value;
-        }
+        Assign(a.Variable, value);
         return value;
     }
 
@@ -220,7 +211,10 @@ internal sealed class Evaluator
             _locals.Push(locals);
 
             var statement = _functionBodies[node.Function];
-            return EvaluateStatement(statement);
+            var result = EvaluateStatement(statement);
+
+            _locals.Pop();
+            return result;
         }
     }
 
@@ -236,5 +230,18 @@ internal sealed class Evaluator
             return Convert.ToString(value);
         else
             throw new Exception($"Unexpected type '{node.Type}'.");
+    }
+
+    private void Assign(VariableSymbol variable, object value)
+    {
+        if (variable.Kind == SymbolKind.GlobalVariable)
+        {
+            _globals[variable] = value;
+        }
+        else
+        {
+            var locals = _locals.Peek();
+            locals[variable] = value;
+        }
     }
 }
