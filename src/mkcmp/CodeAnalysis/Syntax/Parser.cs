@@ -119,16 +119,22 @@ internal sealed class Parser
     {
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
 
-        while (Current.Kind != SyntaxKind.CloseParenToken &&
+        var parseNextParameter = true;
+        while (parseNextParameter &&
+               Current.Kind != SyntaxKind.CloseParenToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {
             var parameter = ParseParameter();
             nodesAndSeparators.Add(parameter);
 
-            if (Current.Kind != SyntaxKind.CloseParenToken)
+            if (Current.Kind == SyntaxKind.CommaToken)
             {
                 var comma = MatchToken(SyntaxKind.CommaToken);
                 nodesAndSeparators.Add(comma);
+            }
+            else
+            {
+                parseNextParameter = false;
             }
         }
 
@@ -387,16 +393,22 @@ internal sealed class Parser
     {
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
 
-        while (Current.Kind != SyntaxKind.CloseParenToken &&
+        var parseNextArgument = true;
+        while (parseNextArgument &&
+               Current.Kind != SyntaxKind.CloseParenToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {
             var expression = ParseExpression();
             nodesAndSeparators.Add(expression);
 
-            if (Current.Kind != SyntaxKind.CloseParenToken)
+            if (Current.Kind == SyntaxKind.CommaToken)
             {
                 var comma = MatchToken(SyntaxKind.CommaToken);
                 nodesAndSeparators.Add(comma);
+            }
+            else
+            {
+                parseNextArgument = false;
             }
         }
 

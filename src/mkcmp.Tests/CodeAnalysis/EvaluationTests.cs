@@ -106,6 +106,43 @@ public class EvaluationTests
     }
 
     [Fact]
+    public void Evaluator_InvokeFunctionArguments_NoInfiniteLoop()
+    {
+        var text = @"
+                print(""Hi""[[=]][)]
+            ";
+
+        var diagnostics = @"
+                Unexpected token <EqualsToken>, expected <CloseParenToken>.
+                Unexpected token <EqualsToken>, expected <IdentifierToken>.
+                Unexpected token <CloseParenToken>, expected <IdentifierToken>.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_FunctionParameters_NoInfiniteLoop()
+    {
+        var text = @"
+                fun hi(name: string[[[=]]][)]
+                {
+                    print(""Hi "" + name + ""!"" )
+                }[]
+            ";
+
+        var diagnostics = @"
+                Unexpected token <EqualsToken>, expected <CloseParenToken>.
+                Unexpected token <EqualsToken>, expected <OpenBraceToken>.
+                Unexpected token <EqualsToken>, expected <IdentifierToken>.
+                Unexpected token <CloseParenToken>, expected <IdentifierToken>.
+                Unexpected token <EndOfFileToken>, expected <CloseBraceToken>.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
     public void Evaluator_IfStatement_Reports_CannotConvert()
     {
         var text = @"
