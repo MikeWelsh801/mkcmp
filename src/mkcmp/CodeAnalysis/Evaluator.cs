@@ -19,6 +19,7 @@ internal sealed class Evaluator
         _functionBodies = functionBodies;
         _root = root;
         _globals = variables;
+        _locals.Push(new Dictionary<VariableSymbol, object>());
     }
 
     public object Evaluate()
