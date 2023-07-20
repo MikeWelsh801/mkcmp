@@ -64,9 +64,88 @@ internal sealed class Parser
 
     public CompilationUnitSyntax ParseCompilationUnit()
     {
-        var statement = ParseStatement();
+        var members = ParseMembers();
         var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-        return new CompilationUnitSyntax(statement, endOfFileToken);
+        return new CompilationUnitSyntax(members, endOfFileToken);
+    }
+
+    private ImmutableArray<MemberSyntax> ParseMembers()
+    {
+        var members = ImmutableArray.CreateBuilder<MemberSyntax>();
+
+        while (Current.Kind != SyntaxKind.EndOfFileToken)
+        {
+            var startToken = Current;
+
+
+            var member = ParseMember();
+            members.Add(member);
+
+            // If ParseMember() did not consume any tokens,
+            // we need to skip the current token and continue
+            // in order to avoid an infinite loop.
+            //
+            // We don't need to report an error, because we've already
+            // tried to parse an expression statement and reported
+            // one.
+            if (Current == startToken)
+                NextToken();
+        }
+
+        return members.ToImmutable();
+    }
+
+    private MemberSyntax ParseMember()
+    {
+        if (Current.Kind == SyntaxKind.FunctionKeyword)
+            return ParseFunctionDeclaration();
+
+        return ParseGlobalStatement();
+    }
+
+    private MemberSyntax ParseFunctionDeclaration()
+    {
+        var functionKeyword = MatchToken(SyntaxKind.FunctionKeyword);
+        var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        var openParenthesisToken = MatchToken(SyntaxKind.OpenParenToken);
+        var parameters = ParseParameterList();
+        var closeParenthesisToken = MatchToken(SyntaxKind.CloseParenToken);
+        var type = ParseOptionalTypeClause();
+        var body = ParseBlockStatement();
+        return new FunctionDeclarationSyntax(functionKeyword, identifier, openParenthesisToken, parameters, closeParenthesisToken, type, body);
+    }
+
+    private SeparatedSyntaxList<ParameterSyntax> ParseParameterList()
+    {
+        var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
+
+        while (Current.Kind != SyntaxKind.CloseParenToken &&
+               Current.Kind != SyntaxKind.EndOfFileToken)
+        {
+            var parameter = ParseParameter();
+            nodesAndSeparators.Add(parameter);
+
+            if (Current.Kind != SyntaxKind.CloseParenToken)
+            {
+                var comma = MatchToken(SyntaxKind.CommaToken);
+                nodesAndSeparators.Add(comma);
+            }
+        }
+
+        return new SeparatedSyntaxList<ParameterSyntax>(nodesAndSeparators.ToImmutableArray());
+    }
+
+    private ParameterSyntax ParseParameter()
+    {
+        var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        var type = ParseTypeClause();
+        return new ParameterSyntax(identifier, type);
+    }
+
+    private MemberSyntax ParseGlobalStatement()
+    {
+        var statement = ParseStatement();
+        return new GlobalStatementSyntax(statement);
     }
 
     private StatementSyntax ParseStatement()
@@ -83,7 +162,7 @@ internal sealed class Parser
         };
     }
 
-    private StatementSyntax ParseBlockStatement()
+    private BlockStatementSyntax ParseBlockStatement()
     {
         var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
         var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
@@ -118,9 +197,25 @@ internal sealed class Parser
         var expected = Current.Kind == SyntaxKind.LetKeyword ? SyntaxKind.LetKeyword : SyntaxKind.VarKeyword;
         var keyword = MatchToken(expected);
         var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        var typeClause = ParseOptionalTypeClause();
         var equals = MatchToken(SyntaxKind.EqualsToken);
         var initializer = ParseExpression();
-        return new VariableDeclarationSyntax(keyword, identifier, equals, initializer);
+        return new VariableDeclarationSyntax(keyword, identifier, typeClause, equals, initializer);
+    }
+
+    private TypeClauseSyntax ParseOptionalTypeClause()
+    {
+        if (Current.Kind != SyntaxKind.ColonToken)
+            return null;
+
+        return ParseTypeClause();
+    }
+
+    private TypeClauseSyntax ParseTypeClause()
+    {
+        var colonToken = MatchToken(SyntaxKind.ColonToken);
+        var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        return new TypeClauseSyntax(colonToken, identifier);
     }
 
     private StatementSyntax ParseIfStatement()

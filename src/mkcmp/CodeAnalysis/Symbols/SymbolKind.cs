@@ -3,7 +3,8 @@ namespace Mkcmp.CodeAnalysis.Symbols;
 public enum SymbolKind
 {
     Function,
-    Variable,
+    GlobalVariable,
+    LocalVariable,
     Parameter,
     Type,
 }

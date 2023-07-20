@@ -30,6 +30,7 @@ public enum SyntaxKind
     CloseParenToken,
     OpenBraceToken,
     CloseBraceToken,
+    ColonToken,
     CommaToken,
     IdentifierToken,
 
@@ -37,6 +38,7 @@ public enum SyntaxKind
     ElseKeyword,
     FalseKeyword,
     ForKeyword,
+    FunctionKeyword,
     IfKeyword,
     InKeyword,
     LetKeyword,
@@ -49,7 +51,11 @@ public enum SyntaxKind
 
     // Nodes
     CompilationUnit,
+    GlobalStatement,
+    FunctionDeclaration,
     ElseClause,
+    TypeClause,
+    Parameter,
 
     // Statements
     BlockStatement,

@@ -31,6 +31,7 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.ForKeyword:
             case SyntaxKind.LetKeyword:
             case SyntaxKind.VarKeyword:
+            case SyntaxKind.ColonToken:
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 break;
             case SyntaxKind.TrueKeyword:
@@ -58,11 +59,14 @@ internal sealed class MkRepl : Repl
             case SyntaxKind.PipePipeToken:
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 break;
-            case SyntaxKind.IdentifierToken:
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                break;
             case SyntaxKind.NumberToken:
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
+                break;
+            case SyntaxKind.FunctionKeyword:
+                Console.ForegroundColor = ConsoleColor.Blue;
+                break;
+            case SyntaxKind.IdentifierToken:
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 break;
             case SyntaxKind.StringToken:
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -112,7 +116,7 @@ internal sealed class MkRepl : Repl
             return true;
 
         var syntaxTree = SyntaxTree.Parse(text);
-        if (syntaxTree.Root.Statement.GetLastToken().IsMissing)
+        if (syntaxTree.Root.Members.Last().GetLastToken().IsMissing)
             return false;
 
         return true;
