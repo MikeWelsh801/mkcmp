@@ -73,6 +73,8 @@ internal static class BoundNodePrinter
             case BoundNodeKind.ConversionExpression:
                 WriteConversionExpression((BoundConversionExpression)node, writer);
                 break;
+            default:
+                throw new Exception($"Unexpected node {node.Kind}.");
         }
     }
 
@@ -181,9 +183,16 @@ internal static class BoundNodePrinter
 
     private static void WriteLabelStatement(BoundLabelStatement node, IndentedTextWriter writer)
     {
-        writer.WriteIdentifier(node.Label.Name);
+        var unindent = writer.Indent > 0;
+        if (unindent)
+            writer.Indent--;
+
+        writer.WriteFun(node.Label.Name);
         writer.WritePunctuation(":");
         writer.WriteLine();
+
+        if (unindent)
+            writer.Indent++;
     }
 
     private static void WriteGoToStatement(BoundGoToStatement node, IndentedTextWriter writer)
@@ -257,7 +266,9 @@ internal static class BoundNodePrinter
         int precedence = SyntaxFacts.GetBinaryOperatorPrecedence(node.Op.SyntaxKind);
 
         writer.WriteNestedExpression(precedence, node.Left);
+        writer.Write(" ");
         writer.WriteOperator(op);
+        writer.Write(" ");
         writer.WriteNestedExpression(precedence, node.Right);
     }
 
