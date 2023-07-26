@@ -79,7 +79,7 @@ internal abstract class BoundTreeRewriter
         if (condition == node.Condition && body == node.Body)
             return node;
 
-        return new BoundWhileStatement(condition, node);
+        return new BoundWhileStatement(condition, node, node.BreakLabel, node.ContinueLabel);
     }
 
     protected virtual BoundStatement RewriteDoWhileStatement(BoundDoWhileStatement node)
@@ -89,7 +89,7 @@ internal abstract class BoundTreeRewriter
         if (condition == node.Condition && body == node.Body)
             return node;
 
-        return new BoundDoWhileStatement(body, condition);
+        return new BoundDoWhileStatement(body, condition, node.BreakLabel, node.ContinueLabel);
     }
 
     protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
@@ -100,7 +100,7 @@ internal abstract class BoundTreeRewriter
         if (lowerBound == node.LowerBound && upperBound == node.UpperBound && body == node.Body)
             return node;
 
-        return new BoundForStatement(node.Variable, lowerBound, node.RangeKeyword, upperBound, body);
+        return new BoundForStatement(node.Variable, lowerBound, node.RangeKeyword, upperBound, body, node.BreakLabel, node.ContinueLabel);
     }
 
     protected virtual BoundStatement RewriteLabelStatement(BoundLabelStatement node)

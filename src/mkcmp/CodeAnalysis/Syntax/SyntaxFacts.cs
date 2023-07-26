@@ -55,6 +55,8 @@ public static class SyntaxFacts
     {
         return text switch
         {
+            "break" => SyntaxKind.BreakKeyword,
+            "continue" => SyntaxKind.ContinueKeyword,
             "else" => SyntaxKind.ElseKeyword,
             "false" => SyntaxKind.FalseKeyword,
             "for" => SyntaxKind.ForKeyword,
@@ -144,6 +146,10 @@ public static class SyntaxFacts
                 return ":";
             case SyntaxKind.CommaToken:
                 return ",";
+            case SyntaxKind.BreakKeyword:
+                return "break";
+            case SyntaxKind.ContinueKeyword:
+                return "continue";
             case SyntaxKind.ElseKeyword:
                 return "else";
             case SyntaxKind.FalseKeyword:

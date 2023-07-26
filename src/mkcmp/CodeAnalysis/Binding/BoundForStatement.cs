@@ -3,11 +3,12 @@ using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.CodeAnalysis.Binding;
 
-internal sealed class BoundForStatement : BoundStatement
+internal sealed class BoundForStatement : BoundLoopStatement
 {
     public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, 
                              SyntaxToken rangeKeyword, BoundExpression upperBound, 
-                             BoundStatement body)
+                             BoundStatement body, BoundLabel breakLabel, BoundLabel continueLabel)
+        : base(breakLabel: breakLabel, continueLabel: continueLabel)
     {
         Variable = variable;
         LowerBound = lowerBound;

@@ -1,8 +1,9 @@
 namespace Mkcmp.CodeAnalysis.Binding;
 
-internal sealed class BoundWhileStatement : BoundStatement
+internal sealed class BoundWhileStatement : BoundLoopStatement
 {
-    public BoundWhileStatement(BoundExpression condition, BoundStatement body)
+    public BoundWhileStatement(BoundExpression condition, BoundStatement body, BoundLabel breakLabel, BoundLabel continueLabel)
+        : base(breakLabel: breakLabel, continueLabel: continueLabel)
     {
         Condition = condition;
         Body = body;

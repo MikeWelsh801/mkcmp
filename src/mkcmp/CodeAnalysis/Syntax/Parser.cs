@@ -164,6 +164,8 @@ internal sealed class Parser
             SyntaxKind.WhileKeyword => ParseWhileStatement(),
             SyntaxKind.DoKeyword => ParseDoWhileStatement(),
             SyntaxKind.ForKeyword => ParseForStatement(),
+            SyntaxKind.BreakKeyword => ParseBreakStatement(),
+            SyntaxKind.ContinueKeyword => ParseContinueStatement(),
             _ => ParseExpressionStatement()
         };
     }
@@ -273,6 +275,18 @@ internal sealed class Parser
         var body = ParseStatement();
         return new ForStatementSyntax(keyword, identifier, inKeyword,
                                       lowerBound, rangeKeyword, upperBound, body);
+    }
+
+    private StatementSyntax ParseBreakStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.BreakKeyword);
+        return new BreakStatementSyntax(keyword);
+    }
+
+    private StatementSyntax ParseContinueStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.ContinueKeyword);
+        return new ContinueStatementSyntax(keyword);
     }
 
     private StatementSyntax ParseExpressionStatement()
