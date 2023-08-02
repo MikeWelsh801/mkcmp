@@ -58,7 +58,7 @@ internal static class TextWriterExtensions
 
     public static void WriteFun(this TextWriter writer, string text)
     {
-        writer.SetForeground(ConsoleColor.DarkCyan);
+        writer.SetForeground(ConsoleColor.Blue);
         writer.Write(text);
         writer.ResetColor();
     }
