@@ -90,13 +90,26 @@ internal sealed class Lowerer : BoundTreeRewriter
 
     protected override BoundStatement RewriteWhileStatement(BoundWhileStatement node)
     {
-        var continueLabel = GenerateLabel();
+        // while <condition>
+        //     <body>
+        //
+        // ----->
+        //
+        // goto check
+        // coninue:
+        // <body>
+        // check:
+        // gotoTrue <Condition> coninue
+        // break;
+        //
+
         var checkLabel = GenerateLabel();
 
-        var gotoTrue = new BoundConditionalGoToStatement(continueLabel, node.Condition);
+        var gotoTrue = new BoundConditionalGoToStatement(node.ContinueLabel, node.Condition);
         var gotoCheck = new BoundGoToStatement(checkLabel);
-        var continueLabelStatement = new BoundLabelStatement(continueLabel);
+        var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
         var checkLabelStatement = new BoundLabelStatement(checkLabel);
+        var breakLabelStatement = new BoundLabelStatement(node.BreakLabel);
 
         var result = new BoundBlockStatement(
             ImmutableArray.Create<BoundStatement>(
@@ -104,7 +117,8 @@ internal sealed class Lowerer : BoundTreeRewriter
                 continueLabelStatement,
                 node.Body,
                 checkLabelStatement,
-                gotoTrue
+                gotoTrue,
+                breakLabelStatement
             )
         );
         return RewriteStatement(result);
@@ -112,16 +126,16 @@ internal sealed class Lowerer : BoundTreeRewriter
 
     protected override BoundStatement RewriteDoWhileStatement(BoundDoWhileStatement node)
     {
-        var continueLabel = GenerateLabel();
-
-        var gotoTrue = new BoundConditionalGoToStatement(continueLabel, node.Condition);
-        var continueLabelStatement = new BoundLabelStatement(continueLabel);
+        var gotoTrue = new BoundConditionalGoToStatement(node.ContinueLabel, node.Condition);
+        var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
+        var breakLabelStatement = new BoundLabelStatement(node.BreakLabel);
 
         var result = new BoundBlockStatement(
             ImmutableArray.Create<BoundStatement>(
                 continueLabelStatement,
                 node.Body,
-                gotoTrue
+                gotoTrue,
+                breakLabelStatement
             )
         );
         return RewriteStatement(result);
@@ -140,6 +154,8 @@ internal sealed class Lowerer : BoundTreeRewriter
             BoundBinaryOperator.Bind(op, TypeSymbol.Int, TypeSymbol.Int),
             new BoundVariableExpression(upperBoundSymbol));
 
+        var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
+
         var increment = new BoundExpressionStatement(
             new BoundAssignmentExpression(
                 node.Variable,
@@ -148,9 +164,12 @@ internal sealed class Lowerer : BoundTreeRewriter
                     BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int),
                     new BoundLiteralExpression(1))));
 
-        var whileBody = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(node.Body, increment));
-        var whileStatement = new BoundWhileStatement(condition, whileBody);
+        var whileBody = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+            node.Body,
+            continueLabelStatement,
+            increment));
 
+        var whileStatement = new BoundWhileStatement(condition, whileBody, node.BreakLabel, GenerateLabel());
         var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
             variableDeclaration,
             upperBoundDeclaration,

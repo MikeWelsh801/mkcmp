@@ -24,6 +24,8 @@ internal sealed class MkRepl : Repl
         switch (token.Kind)
         {
             // keywords
+            case SyntaxKind.BreakKeyword:
+            case SyntaxKind.ContinueKeyword:
             case SyntaxKind.IfKeyword:
             case SyntaxKind.ElseKeyword:
             case SyntaxKind.WhileKeyword:

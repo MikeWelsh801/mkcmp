@@ -9,6 +9,8 @@ internal enum BoundNodeKind
     WhileStatement,
     DoWhileStatement,
     ForStatement,
+    BreakStatement,
+    ContinueStatement,
     LabelStatement,
     GoToStatement,
     ConditionalGoToStatement,

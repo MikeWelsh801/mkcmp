@@ -126,6 +126,12 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
+    public void ReportInvalidBreakOrContinue(TextSpan span, string text)
+    {
+        var message = $"Cannot use '{text}' keyword outside of a loop.";
+        Report(span, message);
+    }
+
     public void XXX_ReportFunctionsAreUnsuported(TextSpan span)
     {
         var message = $"Functions with return values are unsupported.";
