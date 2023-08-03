@@ -71,6 +71,8 @@ public class EvaluationTests
     [InlineData("{ var result = 0 for i in 1..=10 { result = result + i } result }", 55)]
     [InlineData("{ var a = 10 for i in 1..=(a = a - 1) { } a }", 9)]
     [InlineData("{ var a = 0 do a = a + 1 while a < 10 a}", 10)]
+    // [InlineData("{ var i = 0 while i < 5 { i = i + 1 if i == 5 continue } i }", 5)]
+    // [InlineData("{ var i = 0 do { i = i + 1 if i == 5 continue } while i < 5 i }", 5)]
     public void Test_Expression_Evaluation_Result(string text, object expectedValue)
     {
         AssertValue(text, expectedValue);

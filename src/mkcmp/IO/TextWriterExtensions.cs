@@ -1,11 +1,12 @@
 using System.CodeDom.Compiler;
+using Mkcmp.CodeAnalysis.Syntax;
 
 namespace Mkcmp.IO;
 
 internal static class TextWriterExtensions
 {
 
-    public static bool IsConsoleOut(this TextWriter writer)
+    private static bool IsConsoleOut(this TextWriter writer)
     {
         if (writer == Console.Out)
             return true;
@@ -16,16 +17,21 @@ internal static class TextWriterExtensions
         return false;
     }
 
-    public static void SetForeground(this TextWriter writer, ConsoleColor color)
+    private static void SetForeground(this TextWriter writer, ConsoleColor color)
     {
         if (writer.IsConsoleOut())
             Console.ForegroundColor = color;
     }
 
-    public static void ResetColor(this TextWriter writer)
+    private static void ResetColor(this TextWriter writer)
     {
         if (writer.IsConsoleOut())
             Console.ResetColor();
+    }
+
+    public static void WriteKeyword(this TextWriter writer, SyntaxKind kind)
+    {
+        writer.WriteKeyword(SyntaxFacts.GetText(kind));
     }
 
     public static void WriteKeyword(this TextWriter writer, string text)
@@ -35,11 +41,21 @@ internal static class TextWriterExtensions
         writer.ResetColor();
     }
 
+    public static void WriteBool(this TextWriter writer, SyntaxKind kind)
+    {
+        writer.WriteBool(SyntaxFacts.GetText(kind));
+    }
+
     public static void WriteBool(this TextWriter writer, string text)
     {
         writer.SetForeground(ConsoleColor.DarkYellow);
         writer.Write(text);
         writer.ResetColor();
+    }
+
+    public static void WriteOperator(this TextWriter writer, SyntaxKind kind)
+    {
+        writer.WriteOperator(SyntaxFacts.GetText(kind));
     }
 
     public static void WriteOperator(this TextWriter writer, string text)
@@ -54,6 +70,11 @@ internal static class TextWriterExtensions
         writer.SetForeground(ConsoleColor.DarkCyan);
         writer.Write(text);
         writer.ResetColor();
+    }
+
+    public static void WriteFun(this TextWriter writer, SyntaxKind kind)
+    {
+        writer.WriteFun(SyntaxFacts.GetText(kind));
     }
 
     public static void WriteFun(this TextWriter writer, string text)
@@ -75,6 +96,17 @@ internal static class TextWriterExtensions
         writer.SetForeground(ConsoleColor.Green);
         writer.Write(text);
         writer.ResetColor();
+    }
+
+    public static void WriteSpace(this TextWriter writer)
+    {
+        writer.WritePunctuation(" ");
+    }
+
+
+    public static void WritePunctuation(this TextWriter writer, SyntaxKind kind)
+    {
+        writer.WritePunctuation(SyntaxFacts.GetText(kind));
     }
 
     public static void WritePunctuation(this TextWriter writer, string text)
