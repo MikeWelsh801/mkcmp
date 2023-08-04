@@ -138,13 +138,13 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    public void ReportMissingReturnExpression(TextSpan span, string functionName)
+    public void ReportInvalidReturnExpression(TextSpan span, string functionName)
     {
         var message = $"Since the function, '{functionName}' does not return a value the 'return' keyword cannot be followed by an expression.";
         Report(span, message);
     }
 
-    public void ReportInvalidReturnExpression(TextSpan span, TypeSymbol returnType)
+    public void ReportMissingReturnExpression(TextSpan span, TypeSymbol returnType)
     {
         var message = $"An expression of type '{returnType}' expected.";
         Report(span, message);

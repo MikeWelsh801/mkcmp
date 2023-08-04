@@ -306,13 +306,13 @@ internal sealed class Binder
         else if (_function.Type != TypeSymbol.Void)
         {
             if (expression == null)
-                _diagostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Span, _function.Name);
+                _diagostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Span, _function.Type);
             else
                 expression = BindConversion(syntax.Expression.Span, expression, _function.Type);
         }
         else if (expression != null)
         {
-            _diagostics.ReportInvalidReturnExpression(syntax.Expression.Span, _function.Type);
+            _diagostics.ReportInvalidReturnExpression(syntax.Expression.Span, _function.Name);
         }
 
         return new BoundReturnStatement(expression);
