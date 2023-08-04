@@ -132,9 +132,21 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    public void XXX_ReportFunctionsAreUnsuported(TextSpan span)
+    public void ReportInvalidReturn(TextSpan span)
     {
-        var message = $"Functions with return values are unsupported.";
+        var message = "The 'return' keyword can only be used inside of functions.";
+        Report(span, message);
+    }
+
+    public void ReportMissingReturnExpression(TextSpan span, string functionName)
+    {
+        var message = $"Since the function, '{functionName}' does not return a value the 'return' keyword cannot be followed by an expression.";
+        Report(span, message);
+    }
+
+    public void ReportInvalidReturnExpression(TextSpan span, TypeSymbol returnType)
+    {
+        var message = $"An expression of type '{returnType}' expected.";
         Report(span, message);
     }
 }

@@ -102,9 +102,6 @@ internal sealed class Binder
         }
 
         var type = BindTypeClause(syntax.Type) ?? TypeSymbol.Void;
-        if (type != TypeSymbol.Void)
-            _diagostics.XXX_ReportFunctionsAreUnsuported(syntax.Type.Span);
-
         var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
         if (!_scope.TryDeclareFunction(function))
             _diagostics.ReportSymbolAlreadyDeclared(syntax.Identifier.Span, function.Name);
@@ -175,6 +172,8 @@ internal sealed class Binder
                 BindBreakStatement((BreakStatementSyntax)syntax),
             SyntaxKind.ContinueStatement =>
                 BindContinueStatement((ContinueStatementSyntax)syntax),
+            SyntaxKind.ReturnStatement =>
+                BindReturnStatement((ReturnStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement =>
                 BindExpressionStatement((ExpressionStatementSyntax)syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
@@ -294,6 +293,29 @@ internal sealed class Binder
 
         var continueLabel = _loopStack.Peek().ContinueLabel;
         return new BoundGoToStatement(continueLabel);
+    }
+
+    private BoundStatement BindReturnStatement(ReturnStatementSyntax syntax)
+    {
+        var expression = syntax.Expression == null ? null : BindExpression(syntax.Expression);
+
+        if (_function == null)
+        {
+            _diagostics.ReportInvalidReturn(syntax.ReturnKeyword.Span);
+        }
+        else if (_function.Type != TypeSymbol.Void)
+        {
+            if (expression == null)
+                _diagostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Span, _function.Name);
+            else
+                expression = BindConversion(syntax.Expression.Span, expression, _function.Type);
+        }
+        else if (expression != null)
+        {
+            _diagostics.ReportInvalidReturnExpression(syntax.Expression.Span, _function.Type);
+        }
+
+        return new BoundReturnStatement(expression);
     }
 
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)

@@ -64,6 +64,7 @@ public static class SyntaxFacts
             "if" => SyntaxKind.IfKeyword,
             "in" => SyntaxKind.InKeyword,
             "let" => SyntaxKind.LetKeyword,
+            "return" => SyntaxKind.ReturnKeyword,
             "true" => SyntaxKind.TrueKeyword,
             "var" => SyntaxKind.VarKeyword,
             "while" => SyntaxKind.WhileKeyword,
@@ -164,6 +165,8 @@ public static class SyntaxFacts
                 return "in";
             case SyntaxKind.LetKeyword:
                 return "let";
+            case SyntaxKind.ReturnKeyword:
+                return "return";
             case SyntaxKind.TrueKeyword:
                 return "true";
             case SyntaxKind.VarKeyword:
