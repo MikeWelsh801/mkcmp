@@ -305,8 +305,8 @@ internal sealed class ControlFlowGraph
         var graph = Create(body);
         foreach (var branch in graph.End.Incomming)
         {
-            var lastStatement = branch.From.Statements.Last();
-            if (lastStatement.Kind != BoundNodeKind.ReturnStatement)
+            var lastStatement = branch.From.Statements.LastOrDefault();
+            if (lastStatement == null || lastStatement.Kind != BoundNodeKind.ReturnStatement)
                 return false;
         }
         return true;
