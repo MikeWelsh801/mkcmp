@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mkcmp", "mkcmp\mkcmp.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mkcmp.Tests", "mkcmp.Tests\mkcmp.Tests.csproj", "{6C455F07-62FB-4337-9604-F9A63D29FE56}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mc", "mc\mc.csproj", "{4394CDB5-7185-46C4-AF62-47B4920D3973}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{6C455F07-62FB-4337-9604-F9A63D29FE56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C455F07-62FB-4337-9604-F9A63D29FE56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C455F07-62FB-4337-9604-F9A63D29FE56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4394CDB5-7185-46C4-AF62-47B4920D3973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4394CDB5-7185-46C4-AF62-47B4920D3973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4394CDB5-7185-46C4-AF62-47B4920D3973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4394CDB5-7185-46C4-AF62-47B4920D3973}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
