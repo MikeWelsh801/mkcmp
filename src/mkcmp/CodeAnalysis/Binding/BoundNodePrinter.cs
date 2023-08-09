@@ -46,6 +46,9 @@ internal static class BoundNodePrinter
             case BoundNodeKind.ConditionalGoToStatement:
                 WriteConditionalGoToStatement((BoundConditionalGoToStatement)node, writer);
                 break;
+            case BoundNodeKind.ReturnStatement:
+                WriteReturnStatement((BoundReturnStatement)node, writer);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 WriteExpressionStatement((BoundExpressionStatement)node, writer);
                 break;
@@ -216,6 +219,17 @@ internal static class BoundNodePrinter
         writer.WriteIdentifier(node.Label.Name);
         writer.WriteKeyword(node.JumpIfTrue ? " if " : " unless ");
         node.Condition.WriteTo(writer);
+        writer.WriteLine();
+    }
+
+    private static void WriteReturnStatement(BoundReturnStatement node, IndentedTextWriter writer)
+    {
+        writer.WriteKeyword(SyntaxKind.ReturnKeyword);
+        if (node.Expression != null)
+        {
+            writer.WriteSpace();
+            node.Expression.WriteTo(writer);
+        }
         writer.WriteLine();
     }
 

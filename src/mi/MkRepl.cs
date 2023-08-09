@@ -65,6 +65,7 @@ internal sealed class MkRepl : Repl
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
                 break;
             case SyntaxKind.FunctionKeyword:
+            case SyntaxKind.ReturnKeyword:
                 Console.ForegroundColor = ConsoleColor.Blue;
                 break;
             case SyntaxKind.IdentifierToken:
