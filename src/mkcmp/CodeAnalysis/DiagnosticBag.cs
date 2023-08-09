@@ -66,9 +66,15 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    public void ReportUndefinedName(TextSpan span, string name)
+    public void ReportUndefinedVariable(TextSpan span, string name)
     {
         var message = $"Variable '{name}' doesn't exist.";
+        Report(span, message);
+    }
+
+    public void ReportNotAVariable(TextSpan span, string name)
+    {
+        var message = $"'{name}' is not a variable.";
         Report(span, message);
     }
 
@@ -105,6 +111,12 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
     public void ReportUndefinedFunction(TextSpan span, string name)
     {
         var message = $"Function '{name}' doesn't exist.";
+        Report(span, message);
+    }
+
+    public void ReportNotAFunction(TextSpan span, string name)
+    {
+        var message = $"'{name}' is not a function.";
         Report(span, message);
     }
 
@@ -152,7 +164,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportMissingReturnExpression(TextSpan span, TypeSymbol returnType)
     {
-        var message = $"An expression of type '{returnType}' expected.";
+        var message = $"An expression of type '{returnType}' is expected.";
         Report(span, message);
     }
 }

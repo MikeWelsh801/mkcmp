@@ -314,6 +314,18 @@ public class EvaluationTests
     }
 
     [Fact]
+    public void Evaluator_AssignmentExpression_Reports_NotAVariable()
+    {
+        var text = @"[print] = 42";
+
+        var diagnostics = @"
+                'print' is not a variable.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
     public void Evaluator_AssignmentExpression_Reports_Undefined()
     {
         var text = @"[x] = 10";
@@ -358,6 +370,35 @@ public class EvaluationTests
     }
 
     [Fact]
+    public void Evaluator_CallExpression_Reports_Undefined()
+    {
+        var text = @"[foo](42)";
+
+        var diagnostics = @"
+                Function 'foo' doesn't exist.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_CallExpression_Reports_NotAFunction()
+    {
+        var text = @"
+                {
+                    let foo = 42
+                    [foo](42)
+                }
+            ";
+
+        var diagnostics = @"
+                'foo' is not a function.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
     public void Evaluator_Variables_Can_Shadow_Functions()
     {
         var text = @"
@@ -367,7 +408,7 @@ public class EvaluationTests
             }
         ";
         var diagnostics = @"
-            Function 'print' doesn't exist.
+            'print' is not a function.
         ";
 
         AssertDiagnostics(text, diagnostics);
@@ -401,7 +442,7 @@ public class EvaluationTests
             ";
 
         var diagnostics = @"
-                An expression of type 'int' expected.
+                An expression of type 'int' is expected.
             ";
 
         AssertDiagnostics(text, diagnostics);

@@ -16,11 +16,7 @@ internal sealed class BoundScope
 
     public bool TryDeclareVariable(VariableSymbol variable) => TryDeclareSymbol(variable);
 
-    public bool TryLookupVariable(string name, out VariableSymbol variable) => TryLookupSymbol(name, out variable);
-
     public bool TryDeclareFunction(FunctionSymbol function) => TryDeclareSymbol(function);
-
-    public bool TryLookupFunction(string name, out FunctionSymbol function) => TryLookupSymbol(name, out function);
 
     private bool TryDeclareSymbol<T>(T symbol)
         where T : Symbol
@@ -35,24 +31,11 @@ internal sealed class BoundScope
         return true;
     }
 
-    private bool TryLookupSymbol<T>(string name, out T symbol)
-        where T : Symbol
+    public Symbol TryLookupSymbol(string name)
     {
-        symbol = null;
-        if (_symbols != null && _symbols.TryGetValue(name, out var declared))
-        {
-            if (declared is T symbl)
-            {
-                symbol = symbl;
-                return true;
-            }
-            return false;
-        }
-
-        if (Parent == null)
-            return false;
-
-        return Parent.TryLookupSymbol(name, out symbol);
+        if (_symbols != null && _symbols.TryGetValue(name, out var symbol))
+            return symbol;
+        return Parent?.TryLookupSymbol(name);
     }
 
     public ImmutableArray<VariableSymbol> GetDeclaredVariables() => GetDeclaredSymbols<VariableSymbol>();
