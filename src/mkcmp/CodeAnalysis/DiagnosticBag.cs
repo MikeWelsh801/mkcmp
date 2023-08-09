@@ -146,7 +146,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportInvalidReturnExpression(TextSpan span, string functionName)
     {
-        var message = $"Since the function, '{functionName}' does not return a value the 'return' keyword cannot be followed by an expression.";
+        var message = $"Since the function '{functionName}' does not return a value the 'return' keyword cannot be followed by an expression.";
         Report(span, message);
     }
 
