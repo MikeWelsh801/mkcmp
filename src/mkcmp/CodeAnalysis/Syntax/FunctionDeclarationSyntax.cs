@@ -3,6 +3,7 @@ namespace Mkcmp.CodeAnalysis.Syntax;
 public sealed class FunctionDeclarationSyntax : MemberSyntax
 {
     public FunctionDeclarationSyntax(
+        SyntaxTree syntaxTree,
         SyntaxToken functionKeyword,
         SyntaxToken identifier,
         SyntaxToken openParenthesisToken,
@@ -10,6 +11,7 @@ public sealed class FunctionDeclarationSyntax : MemberSyntax
         SyntaxToken closedParenthesisToken,
         TypeClauseSyntax type,
         BlockStatementSyntax body)
+        : base(syntaxTree)
     {
         FunctionKeyword = functionKeyword;
         Identifier = identifier;

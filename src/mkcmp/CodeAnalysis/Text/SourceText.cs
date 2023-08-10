@@ -6,38 +6,16 @@ public sealed class SourceText
 {
     private readonly string _text;
 
-    private SourceText(string text)
+    private SourceText(string text, string fileName)
     {
         _text = text;
+        FileName = fileName;
         Lines = ParseLines(this, text);
     }
 
-    public ImmutableArray<TextLine> Lines { get; }
-
-    public char this[int index] => _text[index];
-
-    public int Length => _text.Length;
-
-    public int GetLineIndex(int position)
+    public static SourceText From(string text, string fileName = "")
     {
-        var startPos = 0;
-        var endPos = Lines.Length - 1;
-
-        while (startPos <= endPos)
-        {
-            var mid = startPos + (endPos - startPos) / 2;
-            var start = Lines[mid].Start;
-            var end = Lines[mid].End;
-
-            if (position >= start && position <= end)
-                return mid;
-
-            if (position < start)
-                endPos = mid - 1;
-            else
-                startPos = mid + 1;
-        }
-        return startPos - 1;
+        return new SourceText(text, fileName);
     }
 
     private static ImmutableArray<TextLine> ParseLines(SourceText sourceText, string text)
@@ -67,6 +45,36 @@ public sealed class SourceText
         return result.ToImmutable();
     }
 
+    public ImmutableArray<TextLine> Lines { get; }
+
+    public char this[int index] => _text[index];
+
+    public int Length => _text.Length;
+
+    public string FileName { get; }
+
+    public int GetLineIndex(int position)
+    {
+        var startPos = 0;
+        var endPos = Lines.Length - 1;
+
+        while (startPos <= endPos)
+        {
+            var mid = startPos + (endPos - startPos) / 2;
+            var start = Lines[mid].Start;
+            var end = Lines[mid].End;
+
+            if (position >= start && position <= end)
+                return mid;
+
+            if (position < start)
+                endPos = mid - 1;
+            else
+                startPos = mid + 1;
+        }
+        return startPos - 1;
+    }
+
     private static void AddLine(ImmutableArray<TextLine>.Builder lines,
                                 SourceText sourceText,
                                 int position,
@@ -90,11 +98,6 @@ public sealed class SourceText
             _ => 0
         };
 
-    }
-
-    public static SourceText From(string text)
-    {
-        return new SourceText(text);
     }
 
     public override string ToString() => _text;
