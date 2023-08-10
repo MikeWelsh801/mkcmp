@@ -1,6 +1,7 @@
 ﻿using Mkcmp.CodeAnalysis;
 using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
+using Mkcmp.IO;
 
 namespace Mkcmp;
 
@@ -22,8 +23,13 @@ internal class Program
         var path = args.Single();
 
         var text = File.ReadAllText(path);
-        var _syntaxTree = SyntaxTree.Parse(text);
-        var compilation = new Compilation(_syntaxTree);
-        compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+        var syntaxTree = SyntaxTree.Parse(text);
+        var compilation = new Compilation(syntaxTree);
+        var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+
+        if (result.Diagnostics.Any())
+            Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
+        else if (result.Value != null)
+            Console.WriteLine(result.Value);
     }
 }
