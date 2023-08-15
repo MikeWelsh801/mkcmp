@@ -7,12 +7,12 @@ namespace Mkcmp;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static int Main(string[] args)
     {
         if (args.Length == 0)
         {
             Console.Error.WriteLine("usage: mc <source-path>");
-            return;
+            return 1;
         }
 
         var paths = GetFilePaths(args);
@@ -23,7 +23,7 @@ internal class Program
         {
             if (!File.Exists(path))
             {
-                Console.WriteLine($"error: file '{path}' doesn't exist");
+                Console.Error.WriteLine($"error: file '{path}' doesn't exist");
                 hasErrors = true;
                 continue;
             }
@@ -32,15 +32,22 @@ internal class Program
         }
 
         if (hasErrors)
-            return;
+            return 1;
 
         var compilation = new Compilation(syntaxTrees.ToArray());
         var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
 
         if (result.Diagnostics.Any())
+        {
             Console.Error.WriteDiagnostics(result.Diagnostics);
+            return 1;
+        }
         else if (result.Value != null)
+        {
             Console.WriteLine(result.Value);
+        }
+
+        return 0;
     }
 
     private static IEnumerable<string> GetFilePaths(IEnumerable<string> args)

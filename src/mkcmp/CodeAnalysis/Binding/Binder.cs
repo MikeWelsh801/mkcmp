@@ -565,19 +565,19 @@ internal sealed class Binder
         return variable;
     }
 
-    private VariableSymbol BindVariableReference(SyntaxToken identifier)
+    private VariableSymbol BindVariableReference(SyntaxToken identifierToken)
     {
-        switch (_scope.TryLookupSymbol(identifier.Text))
+        switch (_scope.TryLookupSymbol(identifierToken.Text))
         {
             case VariableSymbol variable:
                 return variable;
 
             case null:
-                _diagnostics.ReportUndefinedVariable(identifier.Location, identifier.Text);
+                _diagnostics.ReportUndefinedVariable(identifierToken.Location, identifierToken.Text);
                 return null;
 
             default:
-                _diagnostics.ReportNotAVariable(identifier.Location, identifier.Text);
+                _diagnostics.ReportNotAVariable(identifierToken.Location, identifierToken.Text);
                 return null;
         }
     }
