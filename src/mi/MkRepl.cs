@@ -153,7 +153,7 @@ internal sealed class MkRepl : Repl
         }
         else
         {
-            Console.Out.WriteDiagnostics(result.Diagnostics, _syntaxTree);
+            Console.Out.WriteDiagnostics(result.Diagnostics);
         }
     }
 
