@@ -124,16 +124,20 @@ public static class TextWriterExtensions
                                               .ThenBy(d => d.Location.Span.Start)
                                               .ThenBy(d => d.Location.Span.Length))
         {
+            var fileName = diagnostic.Location.FileName;
+            var startLine = diagnostic.Location.StartLine + 1;
+            var startCharacter = diagnostic.Location.StartCharacter + 1;
+            var endLine = diagnostic.Location.EndLine + 1;
+            var endCharacter = diagnostic.Location.EndCharacter + 1;
+
             var span = diagnostic.Location.Span;
             var lineIndex = syntaxTree.Text.GetLineIndex(span.Start);
-            var lineNumber = lineIndex + 1;
             var line = syntaxTree.Text.Lines[lineIndex];
-            var character = span.Start - line.Start + 1;
 
             Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write($"({lineNumber}, {character}): ");
+            Console.Write($"{fileName}({startLine},{startCharacter},{endLine},{endCharacter}): ");
             Console.WriteLine(diagnostic);
             Console.ResetColor();
 
