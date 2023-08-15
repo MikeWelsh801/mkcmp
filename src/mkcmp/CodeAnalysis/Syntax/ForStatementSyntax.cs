@@ -2,9 +2,16 @@ namespace Mkcmp.CodeAnalysis.Syntax;
 
 public sealed class ForStatementSyntax : StatementSyntax
 {
-    public ForStatementSyntax(SyntaxToken keyword, SyntaxToken identifier, SyntaxToken inKeyword,
-                              ExpressionSyntax lowerBound, SyntaxToken rangeKeyword, ExpressionSyntax upperBound, 
-                              StatementSyntax body)
+    public ForStatementSyntax(
+        SyntaxTree syntaxTree,
+        SyntaxToken keyword,
+        SyntaxToken identifier,
+        SyntaxToken inKeyword,
+        ExpressionSyntax lowerBound,
+        SyntaxToken rangeKeyword,
+        ExpressionSyntax upperBound,
+        StatementSyntax body)
+        : base(syntaxTree)
     {
         Keyword = keyword;
         Identifier = identifier;

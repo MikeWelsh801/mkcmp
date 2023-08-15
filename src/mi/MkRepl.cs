@@ -1,7 +1,7 @@
 using Mkcmp.CodeAnalysis;
 using Mkcmp.CodeAnalysis.Symbols;
 using Mkcmp.CodeAnalysis.Syntax;
-using Mkcmp.CodeAnalysis.Text;
+using Mkcmp.IO;
 
 namespace Mkcmp;
 
@@ -153,40 +153,7 @@ internal sealed class MkRepl : Repl
         }
         else
         {
-            foreach (var diagnostic in result.Diagnostics.OrderBy(diag => diag.Span, new TextSpanComparer()))
-            {
-                var lineIndex = _syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
-                var lineNumber = lineIndex + 1;
-                var line = _syntaxTree.Text.Lines[lineIndex];
-                var character = diagnostic.Span.Start - line.Start + 1;
-
-                Console.WriteLine();
-
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write($"({lineNumber}, {character}): ");
-                Console.WriteLine(diagnostic);
-                Console.ResetColor();
-
-                var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
-                var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
-
-                var prefix = _syntaxTree.Text.ToString(prefixSpan);
-                var error = _syntaxTree.Text.ToString(diagnostic.Span);
-                var suffix = _syntaxTree.Text.ToString(suffixSpan);
-
-                Console.Write("    ");
-                Console.Write(prefix);
-
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write(error);
-                Console.ResetColor();
-
-                Console.Write(suffix);
-
-                Console.WriteLine();
-            }
-
-            Console.WriteLine();
+            Console.Out.WriteDiagnostics(result.Diagnostics);
         }
     }
 

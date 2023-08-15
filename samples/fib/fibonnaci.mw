@@ -1,0 +1,11 @@
+fun main(): int {
+    print("Give me a number and I will tell you the fibonnaci number of that index.")
+
+    let number = int(input())
+    let result = fib(number)
+    print("Answer: " + string(result))
+
+    return 0
+}
+
+print("exited with code: " + string(main()))
